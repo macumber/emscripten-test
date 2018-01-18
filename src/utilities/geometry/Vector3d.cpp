@@ -32,39 +32,35 @@ namespace openstudio{
 
   /// default constructor creates vector with 0, 0, 0
   Vector3d::Vector3d()
-    : m_storage(3, 0.0)
+    : m_x(0.0), m_y(0.0), m_z(0.0)
   {}
 
   /// constructor with x, y, z
   Vector3d::Vector3d(double x, double y, double z)
-    : m_storage(3)
-  {
-    m_storage[0] = x;
-    m_storage[1] = y;
-    m_storage[2] = z;
-  }
+    : m_x(x), m_y(y), m_z(z)
+  {}
 
   /// copy constructor
   Vector3d::Vector3d(const Vector3d& other)
-    : m_storage(other.m_storage)
+    : m_x(other.x()), m_y(other.y()), m_z(other.z())
   {}
 
   /// get x
   double Vector3d::x() const
   {
-    return m_storage[0];
+    return m_x;
   }
 
   /// get y
   double Vector3d::y() const
   {
-    return m_storage[1];
+    return m_y;
   }
 
   /// get z
   double Vector3d::z() const
   {
-    return m_storage[2];
+    return m_z;
   }
 
   /// addition
@@ -79,9 +75,9 @@ namespace openstudio{
   /// addition
   Vector3d& Vector3d::operator+=(const Vector3d& other)
   {
-    m_storage[0] += other.x();
-    m_storage[1] += other.y();
-    m_storage[2] += other.z();
+    m_x += other.x();
+    m_y += other.y();
+    m_z += other.z();
     return *this;
   }
 
@@ -97,16 +93,16 @@ namespace openstudio{
   /// subtraction
   Vector3d& Vector3d::operator-=(const Vector3d& other)
   {
-    m_storage[0] -= other.x();
-    m_storage[1] -= other.y();
-    m_storage[2] -= other.z();
+    m_x -= other.x();
+    m_y -= other.y();
+    m_z -= other.z();
     return *this;
   }
 
   /// check equality
   bool Vector3d::operator==(const Vector3d& other) const
   {
-    return (m_storage == other.m_storage);
+    return (m_x == other.x()) && (m_y == other.y()) && (m_z == other.z());
   }
 
   /// ostream operator
@@ -151,13 +147,13 @@ namespace openstudio{
   /// get a vector which is the reverse of this
   Vector3d Vector3d::reverseVector() const
   {
-    return Vector3d(-m_storage[0], -m_storage[1], -m_storage[2]);
+    return Vector3d(-m_x, -m_y, -m_z);
   }
 
   /// get length
   double Vector3d::length() const
   {
-    return norm_2(m_storage);
+    return std::sqrt(m_x*m_x + m_y*m_y + m_z*m_z);
   }
 
   /// set length
@@ -167,9 +163,9 @@ namespace openstudio{
     double currentLength = length();
     if (currentLength > 0){
       double mult = newLength/currentLength;
-      m_storage[0] *= mult;
-      m_storage[1] *= mult;
-      m_storage[2] *= mult;
+      m_x *= mult;
+      m_y *= mult;
+      m_z *= mult;
       result = true;
     }
     return result;
@@ -178,7 +174,7 @@ namespace openstudio{
   /// dot product with another Vector3d
   double Vector3d::dot(const Vector3d& other) const
   {
-    return inner_prod(m_storage, other.m_storage);
+    return m_x*other.x() + m_y*other.y() + m_z*other.z();
   }
 
   /// cross product with another Vector3d
@@ -191,9 +187,11 @@ namespace openstudio{
   }
 
   /// get the Vector directly
+#ifdef REALOS
   Vector Vector3d::vector() const
   {
     return m_storage;
   }
+#endif
 
 } // openstudio

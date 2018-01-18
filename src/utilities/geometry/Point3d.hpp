@@ -36,7 +36,7 @@
 #endif
 
 #include <vector>
-#include <optional>
+#include <boost/optional.hpp>
 
 namespace openstudio{
 
@@ -81,7 +81,9 @@ namespace openstudio{
     #ifdef REALOS
     REGISTER_LOGGER("utilities.Point3d");
     #endif
-    Vector m_storage;
+    double m_x;
+    double m_y;
+    double m_z;
 
   };
 

@@ -33,39 +33,35 @@ namespace openstudio{
 
   /// default constructor creates point at 0, 0, 0
   Point3d::Point3d()
-    : m_storage(3, 0.0)
+    : m_x(0.0), m_y(0.0), m_z(0.0)
   {}
 
   /// constructor with x, y, z
   Point3d::Point3d(double x, double y, double z)
-    : m_storage(3)
-  {
-    m_storage[0] = x;
-    m_storage[1] = y;
-    m_storage[2] = z;
-  }
+    : m_x(x), m_y(y), m_z(z)
+  {}
 
   /// copy constructor
   Point3d::Point3d(const Point3d& other)
-    : m_storage(other.m_storage)
+    : m_x(other.x()), m_y(other.y()), m_z(other.z())
   {}
 
   /// get x
   double Point3d::x() const
   {
-    return m_storage[0];
+    return m_x;
   }
 
   /// get y
   double Point3d::y() const
   {
-    return m_storage[1];
+    return m_y;
   }
 
   /// get z
   double Point3d::z() const
   {
-    return m_storage[2];
+    return m_z;
   }
 
   /// point plus a vector is a new point
@@ -80,9 +76,9 @@ namespace openstudio{
   /// point plus a vector is a new point
   Point3d& Point3d::operator+=(const Vector3d& vec)
   {
-    m_storage[0] += vec.x();
-    m_storage[1] += vec.y();
-    m_storage[2] += vec.z();
+    m_x += vec.x();
+    m_y += vec.y();
+    m_z += vec.z();
     return *this;
   }
 
@@ -98,7 +94,7 @@ namespace openstudio{
   /// check equality
   bool Point3d::operator==(const Point3d& other) const
   {
-    return (m_storage == other.m_storage);
+    return (m_x == other.x()) && (m_y == other.y()) && (m_z == other.z());
   }
 
   /// ostream operator

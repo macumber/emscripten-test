@@ -30,8 +30,10 @@
 #define UTILITIES_GEOMETRY_VECTOR3D_HPP
 
 #include "../UtilitiesAPI.hpp"
-#include "../data/Vector.hpp"
+
+#ifdef REALOS
 #include "../core/Logger.hpp"
+#endif
 
 #include <vector>
 #include <boost/optional.hpp>
@@ -92,14 +94,20 @@ namespace openstudio{
     /// cross product with another Vector3d
     Vector3d cross(const Vector3d& other) const;
 
+#ifdef REALOS
     /// get the Vector directly
     Vector vector() const;
+#endif
 
   private:
 
+#ifdef REALOS
     REGISTER_LOGGER("utilities.Vector3d");
+#endif
 
-    Vector m_storage;
+    double m_x;
+    double m_y;
+    double m_z;
 
   };
 
