@@ -1,4 +1,5 @@
 REM https://stackoverflow.com/questions/45260216/emscripten-cmake-pass-emscripten-options-in-cmakelist-file
+REM https://stackoverflow.com/questions/32099307/run-java-script-file-created-by-emscripten-from-another-java-script-file
 
 mkdir embuild
 cd embuild
