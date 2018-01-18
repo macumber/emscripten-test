@@ -28,6 +28,8 @@
 
 #include "Vector3d.hpp"
 
+#include <cmath>
+
 namespace openstudio{
 
   /// default constructor creates vector with 0, 0, 0
