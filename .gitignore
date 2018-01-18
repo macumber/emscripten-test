@@ -10,4 +10,4 @@ cmake-build-debug
 
 developer/msvc/Visualizers/all_concat.natvis
 .vscode/
-
+/cmake-3.10.2-win64-x64/

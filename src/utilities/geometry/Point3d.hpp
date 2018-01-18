@@ -30,11 +30,13 @@
 #define UTILITIES_GEOMETRY_POINT3D_HPP
 
 #include "../UtilitiesAPI.hpp"
-#include "../data/Vector.hpp"
+
+#ifdef REALOS
 #include "../core/Logger.hpp"
+#endif
 
 #include <vector>
-#include <boost/optional.hpp>
+#include <optional>
 
 namespace openstudio{
 
@@ -76,7 +78,9 @@ namespace openstudio{
 
   private:
 
+    #ifdef REALOS
     REGISTER_LOGGER("utilities.Point3d");
+    #endif
     Vector m_storage;
 
   };
