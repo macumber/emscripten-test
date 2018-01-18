@@ -1,0 +1,13 @@
+.idea
+.ruby-version
+.bundle
+/build/
+
+*.sublime-workspace
+
+*.sublime-project
+cmake-build-debug
+
+developer/msvc/Visualizers/all_concat.natvis
+.vscode/
+
