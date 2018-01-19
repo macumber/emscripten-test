@@ -35,13 +35,6 @@
 #include "../core/Logger.hpp"
 #endif
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-
-#include <emscripten/bind.h>
-using namespace emscripten;
-#endif
-
 #include <vector>
 #include <boost/optional.hpp>
 
@@ -111,12 +104,8 @@ namespace openstudio{
 
 } // openstudio
 
+// small test function
+openstudio::Point3d my_function(double x, double y, double z);
+
 #endif //UTILITIES_GEOMETRY_POINT3D_HPP
 
-#ifdef __EMSCRIPTEN__
-//extern "C" { // DLM: extern "C" minimizes name mangling but restricts use to C
-  openstudio::Point3d EMSCRIPTEN_KEEPALIVE my_function(double x, double y, double z);
-//}
-
-
-#endif

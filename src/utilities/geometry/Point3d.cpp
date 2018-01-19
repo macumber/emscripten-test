@@ -122,12 +122,14 @@ namespace openstudio{
 
 } // openstudio
 
+openstudio::Point3d  my_function(double x, double y, double z) {
+  return openstudio::Point3d(x,y,z);
+}
+
 #ifdef __EMSCRIPTEN__
-  openstudio::Point3d  my_function(double x, double y, double z) {
-    printf("I am being kept alive\n");
-    std::stringstream ss;
-    return openstudio::Point3d(x,y,z);
-  }
+#include <emscripten.h>
+#include <emscripten/bind.h>
+using namespace emscripten;
 
   EMSCRIPTEN_BINDINGS(point3d_example) {
     class_<openstudio::Point3d>("Point3d")
