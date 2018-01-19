@@ -29,6 +29,8 @@
 #include "Point3d.hpp"
 #include "Vector3d.hpp"
 
+#include <sstream>
+
 namespace openstudio{
 
   /// default constructor creates point at 0, 0, 0
@@ -121,5 +123,21 @@ namespace openstudio{
 } // openstudio
 
 #ifdef __EMSCRIPTEN__
-  void  my_function() { printf("I am being kept alive\n"); }
+  openstudio::Point3d  my_function(double x, double y, double z) {
+    printf("I am being kept alive\n");
+    std::stringstream ss;
+    return openstudio::Point3d(x,y,z);
+  }
+
+  EMSCRIPTEN_BINDINGS(point3d_example) {
+    class_<openstudio::Point3d>("Point3d")
+      .constructor<double, double, double>()
+      .function("x", &openstudio::Point3d::x)
+      .function("y", &openstudio::Point3d::y)
+      .function("z", &openstudio::Point3d::z)
+      ;
+
+    function("my_function", &my_function);
+  }
+
 #endif
