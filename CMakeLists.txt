@@ -18,6 +18,12 @@ add_definitions(-DBOOST_UBLAS_NO_STD_CERR)
 include_directories(dependencies)
 
 set(test_lib_src
+  src/utilities/core/Compare.hpp
+  src/utilities/core/Compare.cpp
+  src/utilities/core/Json.hpp
+  src/utilities/core/Json.cpp
+  src/utilities/core/UUID.hpp
+  src/utilities/core/UUID.cpp
   src/utilities/data/Matrix.hpp
   src/utilities/data/Matrix.cpp
   src/utilities/data/Vector.hpp
@@ -26,10 +32,20 @@ set(test_lib_src
   src/utilities/geometry/BoundingBox.cpp
   src/utilities/geometry/EulerAngles.hpp
   src/utilities/geometry/EulerAngles.cpp
+  src/utilities/geometry/FloorplanJS.hpp
+  src/utilities/geometry/FloorplanJS.cpp
   src/utilities/geometry/Geometry.hpp
   src/utilities/geometry/Geometry.cpp
+  src/utilities/geometry/Intersection.hpp
+  src/utilities/geometry/Intersection.cpp
+  src/utilities/geometry/Plane.hpp
+  src/utilities/geometry/Plane.cpp
   src/utilities/geometry/Point3d.hpp
   src/utilities/geometry/Point3d.cpp
+  #src/utilities/geometry/PointLatLon.hpp
+  #src/utilities/geometry/PointLatLon.cpp
+  src/utilities/geometry/ThreeJS.hpp
+  src/utilities/geometry/ThreeJS.cpp
   src/utilities/geometry/Transformation.hpp
   src/utilities/geometry/Transformation.cpp
   src/utilities/geometry/Vector3d.hpp

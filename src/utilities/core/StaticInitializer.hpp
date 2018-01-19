@@ -26,41 +26,59 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_CORE_ASSERT_HPP
-#define UTILITIES_CORE_ASSERT_HPP
+#ifndef UTILITIES_CORE_STATICINITIALIZER_HPP
+#define UTILITIES_CORE_STATICINITIALIZER_HPP
 
-/****************************************************************************
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES OPENSTUDIO_ASSERT!!!
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES BOOST_ASSERT!!!
-*****************************************************************************/
+/// This template should be used as a base class for a class that has static
+/// data to initialize. There is no thread safe way in windows to initialize static
+/// data except to do it before main runs, or under some other controlled condition.
+/// This template ensures that the static member function initialize() of the derived
+/// class is called before main begins.
+/// This code is not necessary with GCC because GCC puts static initializers in critical sections
+template <typename T>
+struct StaticInitializer
+{
+#ifndef __GNUC__
+  private:
+    struct object_creator
+    {
+      // This constructor does nothing more than ensure that instance()
+      //  is called before main() begins, thus creating the static
+      //  T object before multithreading race issues can come up.
+      object_creator() {
+        StaticInitializer<T>::do_initialize();
+      }
 
-#include "../UtilitiesAPI.hpp"
-#include "Logger.hpp"
+      inline void do_nothing() const {  }
+    };
+    static object_creator create_object;
 
-#include <sstream>
-#include <iostream>
+  public:
+    StaticInitializer()
+    {
+      do_initialize();
+    }
 
-#define OS_ASSERT(expr) BOOST_ASSERT(expr)
+    // If, at any point (in user code), Singleton<T>::instance()
+    //  is called, then the following function is instantiated.
+    static void do_initialize()
+    {
+      // call the static function
+      T::initialize();
 
-#ifdef NDEBUG
-  //#define BOOST_DISABLE_ASSERTS
-  #define BOOST_ENABLE_ASSERT_HANDLER
-#else
-  #define BOOST_ENABLE_ASSERT_HANDLER
+      // The following line does nothing else than force the instantiation
+      //  of Singleton<T>::create_object, whose constructor is
+      //  called before main() begins.
+      create_object.do_nothing();
+    }
 #endif
 
-// include after definitions
-#include <boost/assert.hpp>
+};
 
-namespace boost {
-  inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl;
-  }
+#ifndef __GNUC__
+template <typename T>
+typename StaticInitializer<T>::object_creator StaticInitializer<T>::create_object;
+#endif
 
-  inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
-  {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl << msg << std::endl;
-  }
-}
 
-#endif // UTILITIES_CORE_ASSERT_HPP
+#endif // UTILITIES_CORE_STATICINITIALIZER_HPP

@@ -29,7 +29,7 @@
 #include "ThreeJS.hpp"
 
 #include "../core/Assert.hpp"
-#include "../core/Path.hpp"
+//#include "../core/Path.hpp"
 #include "../core/Json.hpp"
 
 #include <jsoncpp/json.h>
@@ -111,7 +111,7 @@ namespace openstudio{
 
     if (!parsingSuccessful){
       std::string errors = reader.getFormattedErrorMessages();
-
+      /*
       // see if this is a path
       openstudio::path p = toPath(s);
       if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)){
@@ -120,7 +120,7 @@ namespace openstudio{
         root.clear();
         parsingSuccessful = reader.parse(ifs, root);
       }
-
+      */
       if (!parsingSuccessful){
         LOG_AND_THROW("ThreeJS JSON cannot be processed, " << errors);
       }

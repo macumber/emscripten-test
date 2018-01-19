@@ -26,41 +26,43 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_CORE_ASSERT_HPP
-#define UTILITIES_CORE_ASSERT_HPP
-
-/****************************************************************************
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES OPENSTUDIO_ASSERT!!!
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES BOOST_ASSERT!!!
-*****************************************************************************/
+#ifndef UTILITIES_CORE_JSON_HPP
+#define UTILITIES_CORE_JSON_HPP
 
 #include "../UtilitiesAPI.hpp"
-#include "Logger.hpp"
 
-#include <sstream>
-#include <iostream>
+//#include "Path.hpp"
+//#include "Compare.hpp"
 
-#define OS_ASSERT(expr) BOOST_ASSERT(expr)
+#include <jsoncpp/json.h>
 
-#ifdef NDEBUG
-  //#define BOOST_DISABLE_ASSERTS
-  #define BOOST_ENABLE_ASSERT_HANDLER
-#else
-  #define BOOST_ENABLE_ASSERT_HANDLER
-#endif
+#include <string>
+#include <vector>
 
-// include after definitions
-#include <boost/assert.hpp>
-
-namespace boost {
-  inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl;
-  }
-
-  inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
-  {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl << msg << std::endl;
-  }
+namespace Json{
+  class Value;
 }
 
-#endif // UTILITIES_CORE_ASSERT_HPP
+namespace openstudio {
+
+/// assert key is present, throws if key is not found
+UTILITIES_API void assertKey(const Json::Value& value, const std::string& key);
+
+/// assert type is correct if key is present, throws if type is not correct
+UTILITIES_API void assertType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType);
+
+/// assert key is present and type is correct, throws if key not found or type is not correct
+UTILITIES_API void assertKeyAndType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType);
+
+/// check key is present, return false if key is not found
+UTILITIES_API bool checkKey(const Json::Value& value, const std::string& key);
+
+/// check type is correct if key is present, return false if type is not correct
+UTILITIES_API bool checkType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType);
+
+/// check key is present and type is correct, return false if key not found or type is not correct
+UTILITIES_API bool checkKeyAndType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType);
+
+}
+
+#endif // UTILITIES_CORE_JSON_HPP

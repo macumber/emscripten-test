@@ -26,41 +26,67 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_CORE_ASSERT_HPP
-#define UTILITIES_CORE_ASSERT_HPP
+#include "Json.hpp"
 
-/****************************************************************************
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES OPENSTUDIO_ASSERT!!!
-!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES BOOST_ASSERT!!!
-*****************************************************************************/
-
-#include "../UtilitiesAPI.hpp"
+#include "Assert.hpp"
+//#include "Compare.hpp"
 #include "Logger.hpp"
+//#include "PathHelpers.hpp"
+//#include "FilesystemHelpers.hpp"
+//#include "String.hpp"
 
-#include <sstream>
-#include <iostream>
+#include <jsoncpp/json.h>
 
-#define OS_ASSERT(expr) BOOST_ASSERT(expr)
+namespace openstudio {
 
-#ifdef NDEBUG
-  //#define BOOST_DISABLE_ASSERTS
-  #define BOOST_ENABLE_ASSERT_HANDLER
-#else
-  #define BOOST_ENABLE_ASSERT_HANDLER
-#endif
-
-// include after definitions
-#include <boost/assert.hpp>
-
-namespace boost {
-  inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl;
-  }
-
-  inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
-  {
-    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl << msg << std::endl;
+// assert key is present
+void assertKey(const Json::Value& value, const std::string& key)
+{
+  if (!checkKey(value, key)){
+    throw std::runtime_error(std::string("Cannot find key '" + key + "'"));
   }
 }
 
-#endif // UTILITIES_CORE_ASSERT_HPP
+// assert type is correct if key is present
+void assertType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType)
+{
+  if (!checkType(value, key, valueType)){
+    throw std::runtime_error(std::string("Key '" + key + "' is of wrong type"));
+  }
+}
+
+// assert key is present and type is correct
+void assertKeyAndType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType)
+{
+  assertKey(value, key);
+  assertType(value, key, valueType);
+}
+
+/// check key is present, return false if key is not found
+bool checkKey(const Json::Value& value, const std::string& key)
+{
+  if (!value.isMember(key)){
+    return false;
+  }
+  return true;
+}
+
+/// check type is correct if key is present, return false if type is not correct
+bool checkType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType)
+{
+  if (value.isMember(key)){
+    if (!value[key].isConvertibleTo(valueType)){
+      return false;
+    }
+  }
+  return true;
+}
+
+/// check key is present and type is correct, return false if key not found or type is not correct
+bool checkKeyAndType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType)
+{
+  return (checkKey(value, key) && checkType(value, key, valueType));
+}
+
+
+} // openstudio

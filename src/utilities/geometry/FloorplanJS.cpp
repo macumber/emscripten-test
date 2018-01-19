@@ -34,7 +34,8 @@
 #include "Intersection.hpp"
 
 #include "../core/Assert.hpp"
-#include "../core/Path.hpp"
+#include "../core/Compare.hpp"
+//#include "../core/Path.hpp"
 #include "../core/Json.hpp"
 
 #include <jsoncpp/json.h>
@@ -229,7 +230,7 @@ namespace openstudio{
 
     if (!parsingSuccessful){
       std::string errors = reader.getFormattedErrorMessages();
-
+      /*
       // see if this is a path
       openstudio::path p = toPath(s);
       if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)){
@@ -238,7 +239,7 @@ namespace openstudio{
         m_value.clear();
         parsingSuccessful = reader.parse(ifs, m_value);
       }
-
+      */
       if (!parsingSuccessful){
         LOG_AND_THROW("ThreeJS JSON cannot be processed, " << errors);
       }
@@ -544,7 +545,7 @@ namespace openstudio{
     double tol = 0.001;
     faceVertices = simplify(faceVertices, false, tol);
 
-    unsigned numPoints = faceVertices.size();
+    size_t numPoints = faceVertices.size();
     if (numPoints < 3){
       //LOG(Error, "Cannot create a space for floorPrint of size " << faceVertices.size() << ".");
       return;
@@ -608,7 +609,7 @@ namespace openstudio{
       Point3dVectorVector allFinalShadeVertices;
       std::vector<unsigned> allFinalShadeParentSubSurfaceIndices;
 
-      unsigned windowN = windowCenterVertices.size();
+      size_t windowN = windowCenterVertices.size();
       OS_ASSERT(windowN == windowDefinitionIds.size());
       for (unsigned windowIdx = 0; windowIdx < windowN; ++windowIdx){
         if (mappedWindows.find(windowIdx) == mappedWindows.end()){
@@ -655,7 +656,7 @@ namespace openstudio{
                 windowVertices.push_back(Point3d(window2.x(), window2.y(), sillHeight));
                 windowVertices.push_back(Point3d(window2.x(), window2.y(), sillHeight + height));
 
-                unsigned parentSubSurfaceIndex = allFinalWindowVertices.size();
+                size_t parentSubSurfaceIndex = allFinalWindowVertices.size();
                 allFinalWindowVertices.push_back(windowVertices);
 
                 if (checkKeyAndType(*windowDefinition, "overhang_projection_factor", Json::realValue) || checkKeyAndType(*windowDefinition, "overhang_projection_factor", Json::intValue)){
@@ -732,7 +733,7 @@ namespace openstudio{
                 if (test)
                 {
                   if (!viewVertices.empty()){
-                    unsigned parentSubSurfaceIndex = allFinalWindowVertices.size();
+                    size_t parentSubSurfaceIndex = allFinalWindowVertices.size();
                     allFinalWindowVertices.push_back(viewVertices);
 
                     if (!exteriorShadingVertices.empty()){
