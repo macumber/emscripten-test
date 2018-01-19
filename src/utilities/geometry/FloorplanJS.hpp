@@ -180,6 +180,8 @@ namespace openstudio{
     mutable std::set<std::string> m_plenumThermalZoneNames;
   };
 
+  UTILITIES_API std::string floorplanToThreeJS(const std::string& json);
+
 } // openstudio
 
 #endif //UTILITIES_GEOMETRY_FLOORPLANJS_HPP

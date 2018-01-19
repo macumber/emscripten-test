@@ -1454,4 +1454,15 @@ namespace openstudio{
     }
   }
 
+  std::string floorplanToThreeJS(const std::string& json)
+  {
+    boost::optional<FloorplanJS> floorplan = FloorplanJS::load(json);
+    if (floorplan){
+      ThreeScene scene = floorplan->toThreeScene(false);
+      return scene.toJSON(false);
+    }
+
+    return "{}";
+  }
+
 } // openstudio

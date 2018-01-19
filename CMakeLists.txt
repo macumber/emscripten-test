@@ -18,6 +18,8 @@ add_definitions(-DBOOST_UBLAS_NO_STD_CERR)
 include_directories(dependencies)
 
 set(test_lib_src
+  dependencies/jsoncpp/jsoncpp.cpp
+  dependencies/polypartition/polypartition.cpp
   src/utilities/core/Compare.hpp
   src/utilities/core/Compare.cpp
   src/utilities/core/Json.hpp
@@ -30,6 +32,7 @@ set(test_lib_src
   src/utilities/data/Vector.cpp
   src/utilities/geometry/BoundingBox.hpp
   src/utilities/geometry/BoundingBox.cpp
+  src/utilities/geometry/Emscripten.cpp
   src/utilities/geometry/EulerAngles.hpp
   src/utilities/geometry/EulerAngles.cpp
   src/utilities/geometry/FloorplanJS.hpp
