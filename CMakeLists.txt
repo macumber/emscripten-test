@@ -17,7 +17,7 @@ set(test_lib_src
   src/utilities/geometry/Vector3d.cpp
 )
 
-add_library(test_lib
+add_library(test_lib STATIC
   ${test_lib_src}
 )
 

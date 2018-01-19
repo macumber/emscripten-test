@@ -35,6 +35,10 @@
 #include "../core/Logger.hpp"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include <vector>
 #include <boost/optional.hpp>
 
@@ -105,3 +109,9 @@ namespace openstudio{
 } // openstudio
 
 #endif //UTILITIES_GEOMETRY_POINT3D_HPP
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+  void EMSCRIPTEN_KEEPALIVE my_function();
+}
+#endif

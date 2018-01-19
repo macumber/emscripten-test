@@ -118,5 +118,8 @@ namespace openstudio{
     return os;
   }
 
-
 } // openstudio
+
+#ifdef __EMSCRIPTEN__
+  void  my_function() { printf("I am being kept alive\n"); }
+#endif
