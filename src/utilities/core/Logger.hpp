@@ -31,6 +31,8 @@
 
 #include "../UtilitiesAPI.hpp"
 
+#include <string>
+
 // DLM: modified version of Logger.hpp
 
 /// defines method logChannel() to get a logger for a class

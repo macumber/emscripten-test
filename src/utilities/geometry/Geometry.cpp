@@ -41,8 +41,6 @@
 
 #include <list>
 
-#include <QPolygon>
-
 namespace openstudio{
   /// convert degrees to radians
   double degToRad(double degrees)
@@ -729,6 +727,8 @@ namespace openstudio{
       return false;
     }
 
+    return false;
+    /*
     QPolygonF surfacePolygon;
     for (const Point3d& point : faceVertices){
       if (std::abs(point.z()) > 0.001){
@@ -810,6 +810,7 @@ namespace openstudio{
     interiorShelfVertices = transformation*interiorShelfVertices;
 
     return true;
+    */
   }
 
 } // openstudio
