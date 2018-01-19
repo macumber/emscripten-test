@@ -26,101 +26,35 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_GEOMETRY_VECTOR3D_HPP
-#define UTILITIES_GEOMETRY_VECTOR3D_HPP
+#ifndef UTILITIES_CORE_LOGGER_HPP
+#define UTILITIES_CORE_LOGGER_HPP
 
 #include "../UtilitiesAPI.hpp"
-#include "../data/Vector.hpp"
-#include "../core/Logger.hpp"
 
-#include <vector>
-#include <boost/optional.hpp>
+// DLM: modified version of Logger.hpp
+
+/// defines method logChannel() to get a logger for a class
+#define REGISTER_LOGGER(__logChannel__)
+
+/// log a message from within a registered class
+#define LOG(__level__, __message__)
+
+/// log a message from within a registered class and throw an exception
+#define LOG_AND_THROW(__message__)
+
+/// log a message from outside a registered class
+#define LOG_FREE(__level__, __channel__, __message__)
+
+/// log a message from outside a registered class and throw an exception
+#define LOG_FREE_AND_THROW(__channel__, __message__)
+
+enum LogLevel{Trace = -3, Debug = -2, Info = -1, Warn = 0, Error = 1, Fatal = 2};
 
 namespace openstudio{
 
-  class UTILITIES_API Vector3d{
-  public:
-
-    /// default constructor creates vector with 0, 0, 0
-    Vector3d();
-
-    /// constructor with x, y, z
-    Vector3d(double x, double y, double z);
-
-    /// copy constructor
-    Vector3d(const Vector3d& other);
-
-    /// get x
-    double x() const;
-
-    /// get y
-    double y() const;
-
-    /// get z
-    double z() const;
-
-    /// addition
-    Vector3d operator+(const Vector3d& other) const;
-
-    /// addition
-    Vector3d& operator+=(const Vector3d& other);
-
-    /// subtraction
-    Vector3d operator-(const Vector3d& other) const;
-
-    /// subtraction
-    Vector3d& operator-=(const Vector3d& other);
-
-    /// check equality
-    bool operator==(const Vector3d& other) const;
-
-    /// normalize to one
-    bool normalize();
-
-    /// get a vector which is the reverse of this
-    Vector3d reverseVector() const;
-
-    /// get length
-    double length() const;
-
-    /// set length
-    bool setLength(double newLength);
-
-    /// dot product with another Vector3d
-    double dot(const Vector3d& other) const;
-
-    /// cross product with another Vector3d
-    Vector3d cross(const Vector3d& other) const;
-
-    /// get the Vector directly
-    Vector vector() const;
-
-  private:
-
-    REGISTER_LOGGER("utilities.Vector3d");
-
-    Vector m_storage;
-
-  };
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const Vector3d& vec);
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const std::vector<Vector3d>& vecVector);
-
-  /// negation
-  UTILITIES_API Vector3d operator-(const Vector3d& vec);
-
-  /// multiplication by a scalar
-  UTILITIES_API Vector3d operator*(double mult, const Vector3d& vec);
-
-  // optional Vector3d
-  typedef boost::optional<Vector3d> OptionalVector3d;
-
-  // vector of Vector3d
-  typedef std::vector<Vector3d> Vector3dVector;
+  /// convenience function for SWIG, prefer macros in C++
+  inline UTILITIES_API void logFree(LogLevel level, const std::string& channel, const std::string& message) {}
 
 } // openstudio
 
-#endif //UTILITIES_GEOMETRY_VECTOR3D_HPP
+#endif // UTILITIES_CORE_LOGGER_HPP

@@ -30,10 +30,8 @@
 #define UTILITIES_GEOMETRY_POINT3D_HPP
 
 #include "../UtilitiesAPI.hpp"
-
-#ifdef REALOS
+#include "../data/Vector.hpp"
 #include "../core/Logger.hpp"
-#endif
 
 #include <vector>
 #include <boost/optional.hpp>
@@ -78,12 +76,8 @@ namespace openstudio{
 
   private:
 
-    #ifdef REALOS
     REGISTER_LOGGER("utilities.Point3d");
-    #endif
-    double m_x;
-    double m_y;
-    double m_z;
+    Vector m_storage;
 
   };
 
@@ -104,8 +98,4 @@ namespace openstudio{
 
 } // openstudio
 
-// small test function
-openstudio::Point3d my_function(double x, double y, double z);
-
 #endif //UTILITIES_GEOMETRY_POINT3D_HPP
-

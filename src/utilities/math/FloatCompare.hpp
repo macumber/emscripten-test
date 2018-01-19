@@ -26,101 +26,37 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_GEOMETRY_VECTOR3D_HPP
-#define UTILITIES_GEOMETRY_VECTOR3D_HPP
+#ifndef UTILITIES_MATH_FLOATCOMPARE_HPP
+#define UTILITIES_MATH_FLOATCOMPARE_HPP
 
-#include "../UtilitiesAPI.hpp"
-#include "../data/Vector.hpp"
-#include "../core/Logger.hpp"
+#include <limits>
+#include <cmath>
 
-#include <vector>
-#include <boost/optional.hpp>
+namespace openstudio {
 
-namespace openstudio{
+template<class T>
+bool equal(T val1,T val2,T tol=std::numeric_limits<T>::epsilon()) {
+  T diff = val1 - val2;
+  if (fabs(diff) < tol) { return true; }
+  return fabs(diff) <= ((fabs(val1) < fabs(val2) ? fabs(val2) : fabs(val1) )*tol);
+}
 
-  class UTILITIES_API Vector3d{
-  public:
+template<class T>
+bool lessThanOrEqual(T val1,T val2,T tol=std::numeric_limits<T>::epsilon()) {
+  return (val1 < val2) || equal(val1,val2,tol);
+}
 
-    /// default constructor creates vector with 0, 0, 0
-    Vector3d();
+template<class T>
+bool greaterThanOrEqual(T val1,T val2,T tol=std::numeric_limits<T>::epsilon()) {
+  return (val1 > val2) || equal(val1,val2,tol);
+}
 
-    /// constructor with x, y, z
-    Vector3d(double x, double y, double z);
-
-    /// copy constructor
-    Vector3d(const Vector3d& other);
-
-    /// get x
-    double x() const;
-
-    /// get y
-    double y() const;
-
-    /// get z
-    double z() const;
-
-    /// addition
-    Vector3d operator+(const Vector3d& other) const;
-
-    /// addition
-    Vector3d& operator+=(const Vector3d& other);
-
-    /// subtraction
-    Vector3d operator-(const Vector3d& other) const;
-
-    /// subtraction
-    Vector3d& operator-=(const Vector3d& other);
-
-    /// check equality
-    bool operator==(const Vector3d& other) const;
-
-    /// normalize to one
-    bool normalize();
-
-    /// get a vector which is the reverse of this
-    Vector3d reverseVector() const;
-
-    /// get length
-    double length() const;
-
-    /// set length
-    bool setLength(double newLength);
-
-    /// dot product with another Vector3d
-    double dot(const Vector3d& other) const;
-
-    /// cross product with another Vector3d
-    Vector3d cross(const Vector3d& other) const;
-
-    /// get the Vector directly
-    Vector vector() const;
-
-  private:
-
-    REGISTER_LOGGER("utilities.Vector3d");
-
-    Vector m_storage;
-
-  };
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const Vector3d& vec);
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const std::vector<Vector3d>& vecVector);
-
-  /// negation
-  UTILITIES_API Vector3d operator-(const Vector3d& vec);
-
-  /// multiplication by a scalar
-  UTILITIES_API Vector3d operator*(double mult, const Vector3d& vec);
-
-  // optional Vector3d
-  typedef boost::optional<Vector3d> OptionalVector3d;
-
-  // vector of Vector3d
-  typedef std::vector<Vector3d> Vector3dVector;
+template<class T>
+double relativeError(T expected,T actual,T tol = std::numeric_limits<T>::epsilon()) {
+  if (fabs(expected) <= tol) { return fabs(expected - actual); }
+  return (fabs(expected - actual)/fabs(expected));
+}
 
 } // openstudio
 
-#endif //UTILITIES_GEOMETRY_VECTOR3D_HPP
+#endif // UTILITIES_MATH_FLOATCOMPARE_HPP

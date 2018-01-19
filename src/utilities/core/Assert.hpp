@@ -26,101 +26,40 @@
  *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
 
-#ifndef UTILITIES_GEOMETRY_VECTOR3D_HPP
-#define UTILITIES_GEOMETRY_VECTOR3D_HPP
+#ifndef UTILITIES_CORE_ASSERT_HPP
+#define UTILITIES_CORE_ASSERT_HPP
+
+/****************************************************************************
+!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES OPENSTUDIO_ASSERT!!!
+!!! THIS FILE MUST BE INCLUDED BY ANY SOURCE FILE THAT USES BOOST_ASSERT!!!
+*****************************************************************************/
 
 #include "../UtilitiesAPI.hpp"
-#include "../data/Vector.hpp"
-#include "../core/Logger.hpp"
+#include "Logger.hpp"
 
-#include <vector>
-#include <boost/optional.hpp>
+#include <sstream>
 
-namespace openstudio{
+#define OS_ASSERT(expr) BOOST_ASSERT(expr)
 
-  class UTILITIES_API Vector3d{
-  public:
+#ifdef NDEBUG
+  //#define BOOST_DISABLE_ASSERTS
+  #define BOOST_ENABLE_ASSERT_HANDLER
+#else
+  #define BOOST_ENABLE_ASSERT_HANDLER
+#endif
 
-    /// default constructor creates vector with 0, 0, 0
-    Vector3d();
+// include after definitions
+#include <boost/assert.hpp>
 
-    /// constructor with x, y, z
-    Vector3d(double x, double y, double z);
+namespace boost {
+  inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
+    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl;
+  }
 
-    /// copy constructor
-    Vector3d(const Vector3d& other);
+  inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
+  {
+    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl << msg << std::endl;
+  }
+}
 
-    /// get x
-    double x() const;
-
-    /// get y
-    double y() const;
-
-    /// get z
-    double z() const;
-
-    /// addition
-    Vector3d operator+(const Vector3d& other) const;
-
-    /// addition
-    Vector3d& operator+=(const Vector3d& other);
-
-    /// subtraction
-    Vector3d operator-(const Vector3d& other) const;
-
-    /// subtraction
-    Vector3d& operator-=(const Vector3d& other);
-
-    /// check equality
-    bool operator==(const Vector3d& other) const;
-
-    /// normalize to one
-    bool normalize();
-
-    /// get a vector which is the reverse of this
-    Vector3d reverseVector() const;
-
-    /// get length
-    double length() const;
-
-    /// set length
-    bool setLength(double newLength);
-
-    /// dot product with another Vector3d
-    double dot(const Vector3d& other) const;
-
-    /// cross product with another Vector3d
-    Vector3d cross(const Vector3d& other) const;
-
-    /// get the Vector directly
-    Vector vector() const;
-
-  private:
-
-    REGISTER_LOGGER("utilities.Vector3d");
-
-    Vector m_storage;
-
-  };
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const Vector3d& vec);
-
-  /// ostream operator
-  UTILITIES_API std::ostream& operator<<(std::ostream& os, const std::vector<Vector3d>& vecVector);
-
-  /// negation
-  UTILITIES_API Vector3d operator-(const Vector3d& vec);
-
-  /// multiplication by a scalar
-  UTILITIES_API Vector3d operator*(double mult, const Vector3d& vec);
-
-  // optional Vector3d
-  typedef boost::optional<Vector3d> OptionalVector3d;
-
-  // vector of Vector3d
-  typedef std::vector<Vector3d> Vector3dVector;
-
-} // openstudio
-
-#endif //UTILITIES_GEOMETRY_VECTOR3D_HPP
+#endif // UTILITIES_CORE_ASSERT_HPP
