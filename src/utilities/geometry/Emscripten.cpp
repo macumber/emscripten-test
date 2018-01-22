@@ -10,29 +10,44 @@
   #include <emscripten/bind.h>
   using namespace emscripten;
 
+  template<typename OptionalType>
+  struct OptionalAccess {
+
+      static bool is_initialized(const OptionalType& o) {
+          return o.is_initialized();
+      }
+
+      static val get(const OptionalType& o) {
+        if (o.is_initialized()) {
+            return val(o.get());
+        }
+        return val::undefined();
+      }
+
+      static void set(OptionalType& o, const typename OptionalType::value_type& value) {
+          o = value;
+      }
+  };
+
+  template<typename T>
+  class_<boost::optional<T>> register_optional(const char* name) {
+    typedef boost::optional<T> OptionalType;
+
+    return class_<boost::optional<T>>(name)
+        .template constructor<>()
+        .template constructor<T>()
+        .function("is_initialized", &OptionalAccess<OptionalType>::is_initialized)
+        .function("get", &OptionalAccess<OptionalType>::get)
+        .function("set", &OptionalAccess<OptionalType>::set)
+        ;
+  }
+
   EMSCRIPTEN_BINDINGS(point3d_example) {
 
-        class_<std::vector<T>> register_vector(const char* name) {
-        typedef std::vector<T> VecType;
-
-        void (VecType::*push_back)(const T&) = &VecType::push_back;
-        void (VecType::*resize)(const size_t, const T&) = &VecType::resize;
-        return class_<std::vector<T>>(name)
-            .template constructor<>()
-            .function("push_back", push_back)
-            .function("resize", resize)
-            .function("size", &VecType::size)
-            .function("get", &internal::VectorAccess<VecType>::get)
-            .function("set", &internal::VectorAccess<VecType>::set)
-            ;
-    }
-
-
-    class_<boost::optional<double>>("OptionalDouble")
-      .constructor<>()
-      .function<double>("get", &boost::optional<double>::get)
-      .function<bool>("is_initialized", &boost::optional<double>::is_initialized)
-      ;
+    register_optional<double>("OptionalDouble");
+    register_optional<int>("OptionalInt");
+    register_optional<unsigned>("OptionalUnsigned");
+    register_optional<std::string>("OptionalString");
 
     class_<openstudio::Point3d>("Point3d")
       .constructor<double, double, double>()
@@ -41,6 +56,7 @@
       .function("z", &openstudio::Point3d::z)
       ;
     register_vector<openstudio::Point3d>("Point3dVector");
+    register_optional<openstudio::Point3d>("OptionalPoint3d");
 
     class_<openstudio::Vector3d>("Vector3d")
       .constructor<double, double, double>()
@@ -49,10 +65,13 @@
       .function("z", &openstudio::Vector3d::z)
       ;
     register_vector<openstudio::Vector3d>("Vector3dVector");
+    register_optional<openstudio::Vector3d>("OptionalVector3d");
 
     function("floorplanToThreeJS", &openstudio::floorplanToThreeJS);
 
     function("getArea", &openstudio::getArea);
+    function("getOutwardNormal", &openstudio::getOutwardNormal);
+    function("getCentroid", &openstudio::getCentroid);
 
   }
 
