@@ -10,7 +10,7 @@ cd embuild
 REM make clean
 make
 
-call ..\..\emsdk\emscripten\1.37.26\emcc --bind -s DEMANGLE_SUPPORT=1 libtest_lib.bc -o libtest_lib.js
+call ..\..\emsdk\emscripten\1.37.26\emcc --bind -O0 -s DEMANGLE_SUPPORT=1 libtest_lib.bc -o libtest_lib.js
 REM call ..\..\emsdk\emscripten\1.37.26\emcc --bind -s DEMANGLE_SUPPORT=1 -s LINKABLE=1 -s EXPORT_ALL=1 libtest_lib.bc -o libtest_lib.js
 
 cd ..
