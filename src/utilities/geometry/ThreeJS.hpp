@@ -46,12 +46,22 @@ namespace Json{
 namespace openstudio{
 
   class ThreeScene;
+  class ThreeMaterial;
 
   /// enum for materials
   enum ThreeSide{FrontSide = 0, BackSide = 1, DoubleSide = 2};
 
+  /// identifies ThreeJS faces in OpenStudio format (e.g. unlimited number of vertices)
+  UTILITIES_API unsigned openstudioFaceFormatId();
+
   /// convert RGB to unsigned
   UTILITIES_API unsigned toThreeColor(unsigned r, unsigned g, unsigned b);
+
+  /// Create a ThreeMaterial
+  UTILITIES_API ThreeMaterial makeThreeMaterial(const std::string& name, unsigned color, double opacity, unsigned side, unsigned shininess = 50, const std::string type = "MeshPhongMaterial");
+
+  /// Create the standard ThreeMaterials
+  UTILITIES_API std::vector<ThreeMaterial> makeStandardThreeMaterials();
 
   /// format a UUID, to limit dependencies UUIDs must be generated outside of this code
   UTILITIES_API std::string toThreeUUID(const std::string& uuid);

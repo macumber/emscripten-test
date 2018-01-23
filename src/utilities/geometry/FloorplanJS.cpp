@@ -430,6 +430,7 @@ namespace openstudio{
       }
 
       userData.setSurfaceType(surfaceType);
+      userData.setSurfaceTypeMaterialName(surfaceType);
       //userData.setAboveCeilingPlenum(aboveCeilingPlenum);
       //userData.setBelowFloorPlenum(belowFloorPlenum);
       userData.setIlluminanceSetpoint(illuminanceSetpoint);
@@ -562,8 +563,8 @@ namespace openstudio{
     }
 
     Point3dVectorVector allFinalFaceVertices;
-    unsigned roofCeilingFaceFormat = 1024;
-    unsigned wallFaceFormat = 1024;
+    unsigned roofCeilingFaceFormat = openstudioFaceFormatId();
+    unsigned wallFaceFormat = openstudioFaceFormatId();
     if (openstudioFormat){
       allFinalFaceVertices.push_back(faceVertices);
     }else{
@@ -836,10 +837,14 @@ namespace openstudio{
     m_plenumThermalZoneNames.clear();
 
     std::vector<ThreeGeometry> geometries;
-    std::vector<ThreeMaterial> materials;
     std::vector<ThreeSceneChild> children;
     std::vector<std::string> buildingStoryNames;
     std::vector<ThreeModelObjectMetadata> modelObjectMetadata;
+
+    std::vector<ThreeMaterial> materials;
+    if (!openstudioFormat){
+      materials = makeStandardThreeMaterials();
+    }
 
     double currentZ = 0;
 

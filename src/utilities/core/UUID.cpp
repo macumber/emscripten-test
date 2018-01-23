@@ -35,7 +35,7 @@
 
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-#include <boost/thread/tss.hpp>
+//#include <boost/thread/tss.hpp>
 
 #ifdef __APPLE__
 
@@ -108,7 +108,8 @@ UUID::UUID(const boost::uuids::uuid &t_other)
 
 UUID UUID::random_generate()
 {
-  static boost::thread_specific_ptr<boost::uuids::random_generator> gen;
+  //static boost::thread_specific_ptr<boost::uuids::random_generator> gen;
+  static boost::shared_ptr<boost::uuids::random_generator> gen;
 
   if (gen.get() == nullptr) {
     gen.reset(new boost::uuids::random_generator);
@@ -119,7 +120,8 @@ UUID UUID::random_generate()
 
 UUID UUID::string_generate(const std::string &t_str)
 {
-  static boost::thread_specific_ptr<boost::uuids::string_generator> gen;
+  //static boost::thread_specific_ptr<boost::uuids::string_generator> gen;
+  static boost::shared_ptr<boost::uuids::string_generator> gen;
 
   if (gen.get() == nullptr) {
     gen.reset(new boost::uuids::string_generator);
@@ -148,11 +150,13 @@ UUID toUUID(const std::string& str)
   }
 }
 
+/*
 // Finds Version 4 uuid in a string including {}
 boost::regex &uuidInString() {
   static boost::regex result("(\\{[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\})");
   return result;
 }
+*/
 
 bool operator!= ( const UUID & lhs, const UUID & rhs ) {
   return static_cast<const boost::uuids::uuid&>(lhs) != static_cast<const boost::uuids::uuid&>(rhs);

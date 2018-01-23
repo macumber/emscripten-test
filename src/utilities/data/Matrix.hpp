@@ -31,10 +31,7 @@
 
 #include "Vector.hpp"
 #include "../UtilitiesAPI.hpp"
-
-#ifdef REALOS
 #include "../core/Logger.hpp"
-#endif
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -120,10 +117,8 @@ namespace openstudio{
    // perform LU-factorization
    typename boost::numeric::ublas::matrix<T>::size_type res = boost::numeric::ublas::lu_factorize(A, pm);
    if( res != 0 ){
-     #ifdef REALOS
      LOG_FREE(Info, "boost.ublas", "boost::numeric::ublas::lu_factorize returned res = " << res <<
                     ", A = " << A << ", pm = " << pm << " for input = " << input);
-     #endif
      return false;
    }
 
@@ -134,10 +129,8 @@ namespace openstudio{
    try {
      boost::numeric::ublas::lu_substitute(A, pm, inverse);
    }catch (std::exception& e){
-     #ifdef REALOS
      LOG_FREE(Info, "boost.ublas", "boost::numeric::ublas::lu_substitute threw exception '" << e.what() <<
                     "' for A = " << A << ", pm = " << pm);
-     #endif
      return false;
    }
 

@@ -1,6 +1,8 @@
 #include "./utilities/geometry/Point3d.hpp"
 #include "./utilities/geometry/Vector3d.hpp"
 
+#include "./utilities/core/UUID.hpp"
+
 using namespace openstudio;
 
 int main(){
@@ -14,6 +16,10 @@ int main(){
   Point3d p2 = p + v;
 
   std::cout << p2 << std::endl;
+
+  UUID uuid = createUUID();
+  std::string uuidString = toString(uuid);
+  UUID uuid2 = toUUID(uuidString);
 
   return 0;
 }

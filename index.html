@@ -1056,6 +1056,7 @@ var update = function (value) {
     }
     
     object.material = material;
+    console.log(material);
     object.material_double_sided = material_double_sided;
     if ( material !== null){
       object.material.needsUpdate = true;
@@ -1226,6 +1227,7 @@ meminitXHR.onload = function(e) {
   var floorplan_str = JSON.stringify(floorplan);
   var threejs_str = Module.floorplanToThreeJS(floorplan_str);
   var threejs = JSON.parse(threejs_str);
+  console.log(threejs_str);
   init(threejs);
   animate();
   initDatGui();
