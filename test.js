@@ -38,7 +38,7 @@ var floorplan = {"application":{"currentSelections":{"story":null,"story_id":"1"
 
 var floorplan_str = JSON.stringify(floorplan); 
 
-var threejs_str = em_module.floorplanToThreeJS(floorplan_str);
+var threejs_str = em_module.floorplanToThreeJS(floorplan_str, false);
 
 var threejs = JSON.parse(threejs_str);
 

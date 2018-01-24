@@ -230,6 +230,7 @@ namespace openstudio{
     std::string sunExposure() const;
     std::string windExposure() const;
     double illuminanceSetpoint() const;
+    bool airWall() const;
     //bool plenum() const;
     //bool belowFloorPlenum() const;
     //bool aboveCeilingPlenum() const;
@@ -270,6 +271,7 @@ namespace openstudio{
     void setSunExposure(const std::string& s);
     void setWindExposure(const std::string& s);
     void setIlluminanceSetpoint(double d);
+    void setAirWall(bool b);
     //void setBelowFloorPlenum(bool v);
     //void setAboveCeilingPlenum(bool v);
 
@@ -315,6 +317,7 @@ namespace openstudio{
     std::string m_sunExposure;
     std::string m_windExposure;
     double m_illuminanceSetpoint;
+    bool m_airWall;
     //bool m_belowFloorPlenum;
     //bool m_aboveCeilingPlenum;
   };
@@ -400,7 +403,7 @@ namespace openstudio{
     double m_lookAtR;
   };
 
-  /// ThreeModelObjectMetadata includes metadata about an OpenStudio ModelObject
+  /// ThreeModelObjectMetadata includes metadata about an OpenStudio ModelObject not associated with a ThreeSceneChild in the ThreeJS scene
   class UTILITIES_API ThreeModelObjectMetadata{
   public:
 
@@ -413,6 +416,36 @@ namespace openstudio{
     std::string handle() const;
     std::string name() const;
 
+    /// applies to Space
+    bool openToBelow() const;
+    bool setOpenToBelow(bool t);
+    void resetOpenToBelow();
+
+    /// applies to Story or Space
+    boost::optional<unsigned> multiplier() const;
+    bool setMultiplier(unsigned mult);
+    void resetMultiplier();
+
+    /// applies to Story
+    boost::optional<double> nominalZCoordinate() const;
+    bool setNominalZCoordinate(double z);
+    void resetNominalZCoordinate();
+
+    /// applies to Story or Space
+    boost::optional<double> belowFloorPlenumHeight() const;
+    bool setBelowFloorPlenumHeight(double height);
+    void resetBelowFloorPlenumHeight();
+
+    /// applies to Story or Space
+    boost::optional<double> floorToCeilingHeight() const;
+    bool setFloorToCeilingHeight(double height);
+    void resetFloorToCeilingHeight();
+
+    /// applies to Story or Space
+    boost::optional<double> aboveCeilingPlenumHeight() const;
+    bool setAboveCeilingPlenumHeight(double height);
+    void resetAboveCeilingPlenumHeight();
+
   private:
     friend class ThreeSceneMetadata;
 
@@ -422,6 +455,13 @@ namespace openstudio{
     std::string m_iddObjectType;
     std::string m_handle;
     std::string m_name;
+
+    bool m_openToBelow;
+    boost::optional<unsigned> m_multiplier;
+    boost::optional<double> m_nominalZCoordinate;
+    boost::optional<double> m_belowFloorPlenumHeight;
+    boost::optional<double> m_floorToCeilingHeight;
+    boost::optional<double> m_aboveCeilingPlenumHeight;
   };
 
   /// ThreeSceneMetadata includes metadata about an OpenStudio Model Object

@@ -356,6 +356,7 @@ namespace openstudio{
     return acos(working1.dot(working2));
   }
 
+  /*
   /// compute distance in meters between two points on the Earth's surface
   /// lat and lon are specified in degrees
   double getDistanceLatLon(double lat1, double lon1, double lat2, double lon2)
@@ -364,7 +365,7 @@ namespace openstudio{
     PointLatLon p2(lat2, lon2);
     return (p1 - p2);
   }
-
+  */
 
   bool circularEqual(const Point3dVector& points1, const Point3dVector& points2, double tol)
   {

@@ -133,6 +133,12 @@ namespace openstudio{
     result.push_back(makeThreeMaterial("Boundary_Othersidecoefficients", toThreeColor(63, 63, 63), 1, ThreeSide::DoubleSide));
     result.push_back(makeThreeMaterial("Boundary_Othersideconditionsmodel", toThreeColor(153, 0, 76), 1, ThreeSide::DoubleSide));
 
+    // special rendering materials, these are components or textures in SketchUp
+    result.push_back(makeThreeMaterial("DaylightingControl", toThreeColor(102, 178, 204), 0.1, ThreeSide::DoubleSide));
+    result.push_back(makeThreeMaterial("AirWall", toThreeColor(102, 178, 204), 0.1, ThreeSide::DoubleSide));
+    result.push_back(makeThreeMaterial("SolarCollector", toThreeColor(255, 255, 255), 1, ThreeSide::DoubleSide));
+    result.push_back(makeThreeMaterial("Photovoltaic", toThreeColor(255, 255, 255), 0.1, ThreeSide::DoubleSide));
+
     return result;
   }
 
@@ -616,7 +622,8 @@ namespace openstudio{
 
   ThreeUserData::ThreeUserData()
     : m_coincidentWithOutsideObject(false),
-      m_illuminanceSetpoint(0.0)
+      m_illuminanceSetpoint(0.0),
+      m_airWall(false)
       //m_belowFloorPlenum(false),
       //m_aboveCeilingPlenum(false)
   {}
@@ -659,8 +666,9 @@ namespace openstudio{
     assertType(value, "sunExposure", Json::stringValue);
     assertType(value, "windExposure", Json::stringValue);
     assertType(value, "illuminanceSetpoint", Json::realValue);
-    assertType(value, "belowFloorPlenum", Json::booleanValue);
-    assertType(value, "aboveCeilingPlenum", Json::booleanValue);
+    assertType(value, "airWall", Json::booleanValue);
+    //assertType(value, "belowFloorPlenum", Json::booleanValue);
+    //assertType(value, "aboveCeilingPlenum", Json::booleanValue);
 
     m_handle = value.get("handle", "").asString();
     m_name = value.get("name", "").asString();
@@ -698,6 +706,7 @@ namespace openstudio{
     m_sunExposure = value.get("sunExposure", "").asString();
     m_windExposure = value.get("windExposure", "").asString();
     m_illuminanceSetpoint = value.get("illuminanceSetpoint", "").asDouble();
+    m_airWall = value.get("airWall", "").asDouble();
     //m_belowFloorPlenum = value.get("belowFloorPlenum", "").asBool();
     //m_aboveCeilingPlenum = value.get("aboveCeilingPlenum", "").asBool();
   }
@@ -742,6 +751,7 @@ namespace openstudio{
     result["sunExposure"] = m_sunExposure;
     result["windExposure"] = m_windExposure;
     result["illuminanceSetpoint"] = m_illuminanceSetpoint;
+    result["airWall"] = m_airWall;
     //result["belowFloorPlenum"] = m_belowFloorPlenum;
     //result["aboveCeilingPlenum"] = m_aboveCeilingPlenum;
 
@@ -926,6 +936,11 @@ namespace openstudio{
   double ThreeUserData::illuminanceSetpoint() const
   {
     return m_illuminanceSetpoint;
+  }
+
+  bool ThreeUserData::airWall() const
+  {
+    return m_airWall;
   }
 
   //bool ThreeUserData::plenum() const
@@ -1121,6 +1136,11 @@ namespace openstudio{
   void ThreeUserData::setIlluminanceSetpoint(double d)
   {
     m_illuminanceSetpoint = d;
+  }
+
+  void ThreeUserData::setAirWall(bool b)
+  {
+    m_airWall = b;
   }
 
   //void ThreeUserData::setBelowFloorPlenum(bool v)
@@ -1372,13 +1392,15 @@ namespace openstudio{
   }
 
   ThreeModelObjectMetadata::ThreeModelObjectMetadata(const std::string& iddObjectType, const std::string& handle, const std::string& name)
-    : m_iddObjectType(iddObjectType), m_handle(handle), m_name(name)
+    : m_iddObjectType(iddObjectType), m_handle(handle), m_name(name), m_openToBelow(false)
   {}
 
   ThreeModelObjectMetadata::ThreeModelObjectMetadata()
+    : m_openToBelow(false)
   {}
 
   ThreeModelObjectMetadata::ThreeModelObjectMetadata(const Json::Value& value)
+    : m_openToBelow(false)
   {
     assertKeyAndType(value, "iddObjectType", Json::stringValue);
     assertKeyAndType(value, "handle", Json::stringValue);
@@ -1387,6 +1409,25 @@ namespace openstudio{
     m_iddObjectType = value.get("iddObjectType", "").asString();
     m_handle = value.get("handle", "").asString();
     m_name = value.get("name", "").asString();
+
+    if (checkKeyAndType(value, "open_to_below", Json::booleanValue)){
+      m_openToBelow = value.get("open_to_below", 1).asBool();
+    }
+    if (checkKeyAndType(value, "multiplier", Json::uintValue)){
+      m_multiplier = value.get("multiplier", 1).asUInt();
+    }
+    if (checkKeyAndType(value, "nominal_z_coordinate", Json::realValue)){
+      m_nominalZCoordinate = value.get("nominal_z_coordinate", 0.0).asDouble();
+    }
+    if (checkKeyAndType(value, "below_floor_plenum_height", Json::realValue)){
+      m_belowFloorPlenumHeight = value.get("below_floor_plenum_height", 0.0).asDouble();
+    }
+    if (checkKeyAndType(value, "floor_to_ceiling_height", Json::realValue)){
+      m_floorToCeilingHeight = value.get("floor_to_ceiling_height", 3.0).asDouble();
+    }
+    if (checkKeyAndType(value, "above_ceiling_plenum_height", Json::realValue)){
+      m_aboveCeilingPlenumHeight = value.get("above_ceiling_plenum_height", 0.0).asDouble();
+    }
   }
 
   std::string ThreeModelObjectMetadata::iddObjectType() const
@@ -1411,10 +1452,133 @@ namespace openstudio{
     result["iddObjectType"] = m_iddObjectType;
     result["handle"] = m_handle;
     result["name"] = m_name;
+    result["open_to_below"] = m_openToBelow;
+    if (m_multiplier){
+      result["multiplier"] = m_multiplier.get();
+    }
+    if (m_nominalZCoordinate){
+      result["nominal_z_coordinate"] = m_nominalZCoordinate.get();
+    }
+    if (m_belowFloorPlenumHeight){
+      result["below_floor_plenum_height"] = m_belowFloorPlenumHeight.get();
+    }
+    if (m_floorToCeilingHeight){
+      result["floor_to_ceiling_height"] = m_floorToCeilingHeight.get();
+    }
+    if (m_aboveCeilingPlenumHeight){
+      result["above_ceiling_plenum_height"] = m_aboveCeilingPlenumHeight.get();
+    }
 
     return result;
   }
 
+  bool ThreeModelObjectMetadata::openToBelow() const
+  {
+    return m_openToBelow;
+  }
+
+  bool ThreeModelObjectMetadata::setOpenToBelow(bool t)
+  {
+    m_openToBelow = t;
+    return true;
+  }
+
+  void ThreeModelObjectMetadata::resetOpenToBelow()
+  {
+    m_openToBelow = false;
+  }
+
+  boost::optional<unsigned> ThreeModelObjectMetadata::multiplier() const
+  {
+    return m_multiplier;
+  }
+
+  bool ThreeModelObjectMetadata::setMultiplier(unsigned mult)
+  {
+    if (mult > 0){
+      m_multiplier = mult;
+      return true;
+    }
+    return false;
+  }
+
+  void ThreeModelObjectMetadata::resetMultiplier()
+  {
+    m_multiplier.reset();
+  }
+
+  boost::optional<double> ThreeModelObjectMetadata::nominalZCoordinate() const
+  {
+    return m_nominalZCoordinate;
+  }
+
+  bool ThreeModelObjectMetadata::setNominalZCoordinate(double z)
+  {
+    m_nominalZCoordinate = z;
+    return true;
+  }
+
+  void ThreeModelObjectMetadata::resetNominalZCoordinate()
+  {
+    m_nominalZCoordinate.reset();
+  }
+
+  boost::optional<double> ThreeModelObjectMetadata::belowFloorPlenumHeight() const
+  {
+    return m_belowFloorPlenumHeight;
+  }
+
+  bool ThreeModelObjectMetadata::setBelowFloorPlenumHeight(double height)
+  {
+    if (height >= 0){
+      m_belowFloorPlenumHeight = height;
+      return true;
+    }
+    return false;
+  }
+
+  void ThreeModelObjectMetadata::resetBelowFloorPlenumHeight()
+  {
+    m_belowFloorPlenumHeight.reset();
+  }
+
+  boost::optional<double> ThreeModelObjectMetadata::floorToCeilingHeight() const
+  {
+    return m_floorToCeilingHeight;
+  }
+
+  bool ThreeModelObjectMetadata::setFloorToCeilingHeight(double height)
+  {
+    if (height >= 0){
+      m_floorToCeilingHeight = height;
+      return true;
+    }
+    return false;
+  }
+
+  void ThreeModelObjectMetadata::resetFloorToCeilingHeight()
+  {
+    m_floorToCeilingHeight.reset();
+  }
+
+  boost::optional<double> ThreeModelObjectMetadata::aboveCeilingPlenumHeight() const
+  {
+    return m_aboveCeilingPlenumHeight;
+  }
+
+  bool ThreeModelObjectMetadata::setAboveCeilingPlenumHeight(double height)
+  {
+    if (height >= 0){
+      m_aboveCeilingPlenumHeight = height;
+      return true;
+    }
+    return false;
+  }
+
+  void ThreeModelObjectMetadata::resetAboveCeilingPlenumHeight()
+  {
+    m_aboveCeilingPlenumHeight.reset();
+  }
 
   ThreeSceneMetadata::ThreeSceneMetadata(const std::vector<std::string>& buildingStoryNames, const ThreeBoundingBox& boundingBox, const std::vector<ThreeModelObjectMetadata>& modelObjectMetadata)
     : m_version("4.3"), m_type("Object"), m_generator("OpenStudio"), m_buildingStoryNames(buildingStoryNames), m_boundingBox(boundingBox), m_modelObjectMetadata(modelObjectMetadata)
