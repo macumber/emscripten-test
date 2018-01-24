@@ -1055,11 +1055,19 @@ var update = function (value) {
       updateColorBarSelection(intersected.userData.variableValue);
     }
     
+    if (!material){
+      material = materials.Undefined;
+      console.log(renderBy + ": could not find material for " + JSON.stringify(object.userData));
+    }
+    if (!material_double_sided){
+      material_double_sided = material;
+    }   
+    if (!material_back){
+      material_back = material;
+    }   
+    
     object.material = material;
     object.material_double_sided = material_double_sided;
-    if (!material){
-      console.log(object.userData.surfaceTypeMaterialName);
-    }
     if ( material !== null){
       object.material.needsUpdate = true;
     }
@@ -1070,10 +1078,6 @@ var update = function (value) {
     }else{
       edge.visible = false;
     }
-    
-    if (!material_back){
-      material_back = material;
-    }    
     
     back_object = back_objects[object.uuid];
     if (back_object){
