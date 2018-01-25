@@ -15,21 +15,29 @@ add_definitions(-DBOOST_UBLAS_CHECK_ENABLE)
 add_definitions(-DBOOST_UBLAS_TYPE_CHECK)
 add_definitions(-DBOOST_UBLAS_NO_STD_CERR)
 
+if(MSVC)
+  add_definitions(/MP)
+endif(MSVC)
+
 include_directories(dependencies)
 
 set(test_lib_src
   dependencies/jsoncpp/jsoncpp.cpp
   dependencies/polypartition/polypartition.cpp
+  src/utilities/core/Assert.hpp
   src/utilities/core/Compare.hpp
   src/utilities/core/Compare.cpp
   src/utilities/core/Json.hpp
   src/utilities/core/Json.cpp
+  src/utilities/core/Logger.hpp
+  src/utilities/core/StaticInitializer.hpp
   src/utilities/core/UUID.hpp
   src/utilities/core/UUID.cpp
   src/utilities/data/Matrix.hpp
   src/utilities/data/Matrix.cpp
   src/utilities/data/Vector.hpp
   src/utilities/data/Vector.cpp
+  src/utilities/math/FloatCompare.hpp
   src/utilities/geometry/BoundingBox.hpp
   src/utilities/geometry/BoundingBox.cpp
   src/utilities/geometry/Emscripten.cpp

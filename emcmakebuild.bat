@@ -8,7 +8,7 @@ cd embuild
 ..\cmake-3.10.2-win64-x64\bin\cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE="..\..\emsdk\emscripten\1.37.26\cmake\Modules\Platform\Emscripten.cmake" -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=ON ..
 
 REM make clean
-make
+make -j4
 
 IF EXIST libtest_lib.js DEL /F libtest_lib.js
 
