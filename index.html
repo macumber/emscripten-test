@@ -1137,7 +1137,9 @@ var initDatGui = function () {
   };
 
   gui = new dat.GUI();
-  var render_modes = ['Surface Type', 'Normal', 'Boundary', 'Construction', 'Thermal Zone', 'Space Type', 'Building Story'];
+  // DLM: support reduce list
+  //var render_modes = ['Surface Type', 'Normal', 'Boundary', 'Construction', 'Thermal Zone', 'Space Type', 'Building Story'];
+  var render_modes = ['Surface Type', 'Normal', 'Thermal Zone', 'Space Type', 'Building Story'];
   if (has_data){
     render_modes.push('Data');
   }

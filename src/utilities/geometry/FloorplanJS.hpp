@@ -50,6 +50,7 @@ namespace openstudio{
   class ThreeSceneChild;
   class ThreeGeometry;
   class ThreeModelObjectMetadata;
+  class ThreeMaterial;
   class FloorplanObjectId;
   class Point3d;
   class FloorplanJS;
@@ -119,6 +120,10 @@ namespace openstudio{
   *   conversion to OpenStudio Model format.  Converting from FloorspaceJS to ThreeJS to OpenStudio ensures that the ThreeJS preview of a FloorspaceJS model is as
   *   accurate as possible.  These conversions can also be used to convert a FloorspaceJS file to a 3D model for translation to other 3D formats.
   *
+  *  FloorplanJS does not support version translation of old FloorspaceJS files, that functionality is in the FloorspaceJS project.
+  *
+  *  The ThreeJSForwardTranslator in the Model project converts an OpenStudio Model to ThreeJS format, code should be shared between these two classes as much as possible.
+  *
   *  The class is not impl-ized in hopes that it can be ported to JavaScript via emscripten
   */
   class UTILITIES_API FloorplanJS{
@@ -171,6 +176,8 @@ namespace openstudio{
     std::string makeSurface(const Json::Value& story, const Json::Value& spaceOrShading, const std::string& parentSurfaceName, const std::string& parentSubSurfaceName,
       bool belowFloorPlenum, bool aboveCeilingPlenum, const std::string& surfaceType, const Point3dVectorVector& finalFaceVertices, size_t faceFormat,
       std::vector<ThreeGeometry>& geometries, std::vector<ThreeSceneChild>& sceneChildren, double illuminanceSetpoint, bool airWall) const;
+
+    void makeMaterial(const Json::Value& object, const std::string& iddObjectType, std::vector<ThreeMaterial>& materials, std::map<std::string, std::string>& materialMap) const;
 
     std::string getHandleString(const Json::Value& value) const;
     std::string getName(const Json::Value& value) const;
