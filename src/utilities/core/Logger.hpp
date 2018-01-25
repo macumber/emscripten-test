@@ -53,6 +53,7 @@
   std::stringstream _ss1; \
   _ss1 << __message__; \
   openstudio::logFree(LogLevel::Fatal, "", _ss1.str()); \
+  throw std::runtime_error(_ss1.str()); \
 }
 
 /// log a message from outside a registered class
@@ -68,7 +69,8 @@
 { \
   std::stringstream _ss1; \
   _ss1 << __message__; \
-  openstudio::logFree(LogLevel, __channel__, _ss1.str()); \
+  openstudio::logFree(LogLevel::Fatal, __channel__, _ss1.str()); \
+  throw std::runtime_error(_ss1.str()); \
 }
 
 enum LogLevel{Trace = -3, Debug = -2, Info = -1, Warn = 0, Error = 1, Fatal = 2};
@@ -78,7 +80,9 @@ namespace openstudio{
   /// convenience function for SWIG, prefer macros in C++
   inline UTILITIES_API void logFree(LogLevel level, const std::string& channel, const std::string& message)
   {
-    std::cout << level << " " << channel << ": " << message << std::endl;
+    if (level >= LogLevel::Warn){
+      std::cout << level << " " << channel << ": " << message << std::endl;
+    }
   }
 
 } // openstudio
