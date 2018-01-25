@@ -32,6 +32,7 @@
 #include "../UtilitiesAPI.hpp"
 
 #include <string>
+#include <iostream>
 
 // DLM: modified version of Logger.hpp
 
@@ -39,23 +40,46 @@
 #define REGISTER_LOGGER(__logChannel__)
 
 /// log a message from within a registered class
-#define LOG(__level__, __message__)
+#define LOG(__level__, __message__) \
+{ \
+  std::stringstream _ss1; \
+  _ss1 << __message__; \
+  openstudio::logFree(__level__, "", _ss1.str()); \
+}
 
 /// log a message from within a registered class and throw an exception
-#define LOG_AND_THROW(__message__)
+#define LOG_AND_THROW(__message__) \
+{ \
+  std::stringstream _ss1; \
+  _ss1 << __message__; \
+  openstudio::logFree(LogLevel::Fatal, "", _ss1.str()); \
+}
 
 /// log a message from outside a registered class
-#define LOG_FREE(__level__, __channel__, __message__)
+#define LOG_FREE(__level__, __channel__, __message__) \
+{ \
+  std::stringstream _ss1; \
+  _ss1 << __message__; \
+  openstudio::logFree(__level__, __channel__, _ss1.str()); \
+}
 
 /// log a message from outside a registered class and throw an exception
-#define LOG_FREE_AND_THROW(__channel__, __message__)
+#define LOG_FREE_AND_THROW(__channel__, __message__) \
+{ \
+  std::stringstream _ss1; \
+  _ss1 << __message__; \
+  openstudio::logFree(LogLevel, __channel__, _ss1.str()); \
+}
 
 enum LogLevel{Trace = -3, Debug = -2, Info = -1, Warn = 0, Error = 1, Fatal = 2};
 
 namespace openstudio{
 
   /// convenience function for SWIG, prefer macros in C++
-  inline UTILITIES_API void logFree(LogLevel level, const std::string& channel, const std::string& message) {}
+  inline UTILITIES_API void logFree(LogLevel level, const std::string& channel, const std::string& message)
+  {
+    std::cout << level << " " << channel << ": " << message << std::endl;
+  }
 
 } // openstudio
 
