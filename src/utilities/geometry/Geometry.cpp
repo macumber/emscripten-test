@@ -30,7 +30,6 @@
 #include "Intersection.hpp"
 #include "Transformation.hpp"
 #include "Point3d.hpp"
-#include "PointLatLon.hpp"
 #include "Vector3d.hpp"
 
 #include "../core/Assert.hpp"
@@ -40,8 +39,6 @@
 #include <polypartition/polypartition.h>
 
 #include <list>
-
-//#include <QPolygon>
 
 namespace openstudio{
   /// convert degrees to radians
@@ -355,17 +352,6 @@ namespace openstudio{
     working2.normalize();
     return acos(working1.dot(working2));
   }
-
-  /*
-  /// compute distance in meters between two points on the Earth's surface
-  /// lat and lon are specified in degrees
-  double getDistanceLatLon(double lat1, double lon1, double lat2, double lon2)
-  {
-    PointLatLon p1(lat1, lon1);
-    PointLatLon p2(lat2, lon2);
-    return (p1 - p2);
-  }
-  */
 
   bool circularEqual(const Point3dVector& points1, const Point3dVector& points2, double tol)
   {
@@ -730,17 +716,14 @@ namespace openstudio{
       return false;
     }
 
-    return false;
-    /*
-    QPolygonF surfacePolygon;
+    Point3dVector surfacePolygon;
     for (const Point3d& point : faceVertices){
       if (std::abs(point.z()) > 0.001){
         LOG_FREE(Warn, "utilities.geometry.applyViewAndDaylightingGlassRatios", "Surface point z not on plane, z =" << point.z());
       }
-      surfacePolygon << QPointF(point.x(),point.y());
+      surfacePolygon.push_back(Point3d(point.x(),point.y(), 0.0));
     }
-    // close the polygon
-    surfacePolygon << QPointF(faceVertices[0].x(), faceVertices[0].y());
+    std::reverse(surfacePolygon.begin(), surfacePolygon.end());
 
     if (doViewGlass){
       viewVertices.push_back(Point3d(viewMinX, viewMinY + viewHeight, 0));
@@ -748,19 +731,19 @@ namespace openstudio{
       viewVertices.push_back(Point3d(viewMinX + viewWidth, viewMinY, 0));
       viewVertices.push_back(Point3d(viewMinX + viewWidth, viewMinY + viewHeight, 0));
 
-      QPolygonF windowPolygon;
+      Point3dVector windowPolygon;
       for (const Point3d& point : viewVertices){
         if (std::abs(point.z()) > 0.001){
           LOG_FREE(Warn, "utilities.geometry.applyViewAndDaylightingGlassRatios", "Surface point z not on plane, z =" << point.z());
         }
-        windowPolygon << QPointF(point.x(),point.y());
+        windowPolygon.push_back(Point3d(point.x(),point.y(), 0.0));
       }
-      // close the polygon
-      windowPolygon << QPointF(viewVertices[0].x(), viewVertices[0].y());
 
       // sub surface must be fully contained by base surface
-      for (const QPointF& point : windowPolygon){
-        if (!surfacePolygon.containsPoint(point, Qt::OddEvenFill)){
+      for (const Point3d& point : windowPolygon){
+        if (!within(point, surfacePolygon, 0.001)){
+          std::cout << "point: " << point << std::endl;
+          std::cout << "surfacePolygon: " << surfacePolygon << std::endl;
           LOG_FREE(Debug, "utilities.geometry.applyViewAndDaylightingGlassRatios", "Surface does not fully contain SubSurface");
           return false;
         }
@@ -773,19 +756,17 @@ namespace openstudio{
       daylightingVertices.push_back(Point3d(daylightingMinX + daylightingWidth, daylightingMinY, 0));
       daylightingVertices.push_back(Point3d(daylightingMinX + daylightingWidth, daylightingMinY + daylightingHeight, 0));
 
-      QPolygonF windowPolygon;
+      Point3dVector windowPolygon;
       for (const Point3d& point : daylightingVertices){
         if (std::abs(point.z()) > 0.001){
           LOG_FREE(Warn, "utilities.geometry.applyViewAndDaylightingGlassRatios", "Surface point z not on plane, z =" << point.z());
         }
-        windowPolygon << QPointF(point.x(),point.y());
+        windowPolygon.push_back(Point3d(point.x(),point.y(), 0.0));
       }
-      // close the polygon
-      windowPolygon << QPointF(daylightingVertices[0].x(), daylightingVertices[0].y());
 
       // sub surface must be fully contained by base surface
-      for (const QPointF& point : windowPolygon){
-        if (!surfacePolygon.containsPoint(point, Qt::OddEvenFill)){
+      for (const Point3d& point : windowPolygon){
+        if (!within(point, surfacePolygon, 0.001)){
           LOG_FREE(Debug, "utilities.geometry.applyViewAndDaylightingGlassRatios", "Surface does not fully contain SubSurface");
           return false;
         }
@@ -813,7 +794,6 @@ namespace openstudio{
     interiorShelfVertices = transformation*interiorShelfVertices;
 
     return true;
-    */
   }
 
 } // openstudio
