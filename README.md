@@ -6,8 +6,6 @@ Create a folder named `embuild`
 
 Extract the contents of the latest release `libtest_lib_release.zip` into that directory.
 
-Copy the file `libtest_lib.js.mem` into the project's root directory (this is a temporary step).
-
 Install [Node and npm](https://nodejs.org/en/download/)
 
 Run the test script by running `node test.js` from the root directory
@@ -18,7 +16,6 @@ Serve the test page by running `serve` from the root directory
 
 ## Building
 
-Install the [Emscripten SDK](https://github.com/juj/emsdk)
-
-Run the commands in the `emcmakebuild.bat` file
+docker build -t emscripten_test_builder .
+docker run -it --mount src=$(pwd),target=/src,type=bind emscripten_test_builder
 
