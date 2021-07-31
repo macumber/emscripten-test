@@ -177,7 +177,7 @@ var getColor = function (x, min, max, palette) {
   if (x == null){
     return new THREE.Color(255, 255, 255);
   }
-  
+
   x = Math.min(Math.max(x, min), max);
   var percent = (x-min)/(max-min);
   var r = 1 - percent;
@@ -255,13 +255,13 @@ function updateColorBarSelection(value) {
 function updateBalloon(object) {
   var span = document.getElementById('balloon-variable-name');
   if (span) span.innerHTML = object.userData.variableName;
-  
+
   span = document.getElementById('balloon-variable-key-name');
   if (span) span.innerHTML = object.userData.variableKeyName;
-  
+
   span = document.getElementById('balloon-variable-date');
   if (span) span.innerHTML = object.userData.variableDate;
-  
+
   span = document.getElementById('balloon-variable-time');
   if (span) span.innerHTML = object.userData.variableTime;
 
@@ -433,7 +433,7 @@ function setCameraAngles(camera, controls, theta, phi, tweenTime) {
 }
 
 function init(os_data_in) {
-  
+
   // set global variable
   os_data = os_data_in;
 
@@ -501,7 +501,7 @@ function init(os_data_in) {
     alpha: 1,
     antialias: true,
     clearColor: 0xffffff
-  }); 
+  });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMapEnabled = true;
   renderer.shadowMapSoft = true;
@@ -660,7 +660,7 @@ function restoreLastMaterial(object) {
 function selectObject(object) {
   renderBy = settings.renderBy;
   isData = (renderBy == 'Data');
-  
+
   if (intersected != object){
 
     // restore material on currently selected
@@ -931,7 +931,7 @@ var update = function (value) {
     t = os_data.times[variable.timeIndex][i];
     var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
     d.setUTCSeconds(t);
-    
+
     date = ('0' + (d.getUTCMonth()+1)).slice(-2) + '/' + ('0'+d.getUTCDate()).slice(-2);
     time = ('0' + d.getUTCHours()).slice(-2) + ':' + ('0'+d.getUTCMinutes()).slice(-2);
 
@@ -1028,7 +1028,7 @@ var update = function (value) {
             keyName = object_variable.keyName;
           }
         }
-       
+
         if (value !== null) {
           object.userData.variableName = settings.variableName;
           object.userData.variableDate = date;
@@ -1040,7 +1040,7 @@ var update = function (value) {
           object.userData.variableName = settings.variableName;
           object.userData.variableDate = date;
           object.userData.variableTime = time;
-          object.userData.variableKeyName = keyName;          
+          object.userData.variableKeyName = keyName;
           object.userData.variableValue = '';
           object.userData.variableUnits = units;
         }
@@ -1049,23 +1049,23 @@ var update = function (value) {
         material.color.set(getColor(value, variable.valueMin, variable.valueMax, settings.colorScheme));
         break;
     }
-    
+
     if (intersected) {
       updateBalloon(intersected);
       updateColorBarSelection(intersected.userData.variableValue);
     }
-    
+
     if (!material){
       material = materials.Undefined;
       console.log(renderBy + ": could not find material for " + JSON.stringify(object.userData));
     }
     if (!material_double_sided){
       material_double_sided = material;
-    }   
+    }
     if (!material_back){
       material_back = material;
-    }   
-    
+    }
+
     object.material = material;
     object.material_double_sided = material_double_sided;
     if ( material !== null){
@@ -1078,7 +1078,7 @@ var update = function (value) {
     }else{
       edge.visible = false;
     }
-    
+
     back_object = back_objects[object.uuid];
     if (back_object){
       back_object.material = material_back;
@@ -1190,7 +1190,7 @@ var initDatGui = function () {
     removeSelection();
     setLocalStorage('showPartitions', value);
     update(value);
-  });  
+  });
   f1.add(settings, 'showWireframe').name('Show Wireframe').onChange(function(value) {
     removeSelection();
     setLocalStorage('showWireframe', value);
@@ -1223,19 +1223,7 @@ var initDatGui = function () {
   update();
 };
 
-// DLM: apparently there is no require on the client side
-// tried to use script src= above, thought it would include js in Module?
-// var em_module = require('./embuild/libtest_lib.js');
-
-var memoryInitializer = './embuild/libtest_lib.js.mem';
-if (typeof Module['locateFile'] === 'function') {
-  memoryInitializer = Module['locateFile'](memoryInitializer);
-} else if (Module['memoryInitializerPrefixURL']) {
-  memoryInitializer = Module['memoryInitializerPrefixURL'] + memoryInitializer;
-}
-Module['memoryInitializerRequestURL'] = memoryInitializer;
-var meminitXHR = Module['memoryInitializerRequest'] = new XMLHttpRequest();
-meminitXHR.onload = function(e) {
+Module.addOnPostRun(() => {
   var floorplan_str = JSON.stringify(floorplan);
   var threejs_str = Module.floorplanToThreeJS(floorplan_str, false);
   var threejs = JSON.parse(threejs_str);
@@ -1243,11 +1231,7 @@ meminitXHR.onload = function(e) {
   init(threejs);
   animate();
   initDatGui();
-}
-meminitXHR.open('GET', memoryInitializer, true);
-meminitXHR.responseType = 'arraybuffer';
-meminitXHR.send(null);
-
+});
 
 </script>
 </body>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-
+project(EmscriptenTest)
 set (CMAKE_CXX_STANDARD 11)
 
 #if (MSVC_VERSION GREATER_EQUAL "1900")
