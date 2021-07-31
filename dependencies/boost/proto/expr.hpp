@@ -26,7 +26,7 @@
 #include <boost/proto/args.hpp>
 #include <boost/proto/traits.hpp>
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma warning(push)
 # pragma warning(disable : 4510) // default constructor could not be generated
 # pragma warning(disable : 4512) // assignment operator could not be generated
@@ -92,7 +92,7 @@ namespace boost { namespace proto
 
         // Work-around for:
         // https://connect.microsoft.com/VisualStudio/feedback/details/765449/codegen-stack-corruption-using-runtime-checks-when-aggregate-initializing-struct
-    #if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1700))
+    #if BOOST_WORKAROUND(BOOST_MSVC, < 1800)
         template<typename T, typename Expr, typename C, typename U>
         BOOST_FORCEINLINE
         Expr make_terminal(T &t, Expr *, proto::term<U C::*> *)
@@ -156,7 +156,7 @@ namespace boost { namespace proto
 
 }}
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+#if defined(_MSC_VER)
 # pragma warning(pop)
 #endif
 

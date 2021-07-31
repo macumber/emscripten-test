@@ -1,4 +1,4 @@
-/* Copyright 2003-2013 Joaquin M Lopez Munoz.
+/* Copyright 2003-2020 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -9,7 +9,7 @@
 #ifndef BOOST_MULTI_INDEX_DETAIL_SAFE_MODE_HPP
 #define BOOST_MULTI_INDEX_DETAIL_SAFE_MODE_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 
@@ -116,6 +116,7 @@
 
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/version.hpp>
 #endif
 
 #if defined(BOOST_HAS_THREADS)
@@ -429,6 +430,7 @@ public:
   safe_iterator(
     const T0& t0,const T1& t1,safe_container<container_type>* cont_):
     super(Iterator(t0,t1)),safe_super(cont_){}
+  safe_iterator(const safe_iterator& x):super(x),safe_super(x){}
 
   safe_iterator& operator=(const safe_iterator& x)
   {
@@ -566,6 +568,19 @@ public:
 } /* namespace multi_index::safe_mode */
 
 } /* namespace multi_index */
+
+#if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
+namespace serialization{
+template<typename Iterator,typename Container>
+struct version<
+  boost::multi_index::safe_mode::safe_iterator<Iterator,Container>
+>
+{
+  BOOST_STATIC_CONSTANT(
+    int,value=boost::serialization::version<Iterator>::value);
+};
+} /* namespace serialization */
+#endif
 
 } /* namespace boost */
 

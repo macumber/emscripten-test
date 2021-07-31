@@ -12,7 +12,6 @@
 
 #include <string>
 #include <boost/config.hpp>
-#include <boost/concept_check.hpp>
 
 #include <boost/spirit/home/classic/namespace.hpp>
 #include <boost/spirit/home/classic/iterator/position_iterator_fwd.hpp>
@@ -95,7 +94,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_END
 
 
 // This must be included here for full compatibility with old MSVC
-#include "boost/spirit/home/classic/iterator/impl/position_iterator.ipp"
+#include <boost/spirit/home/classic/iterator/impl/position_iterator.ipp>
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit {

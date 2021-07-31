@@ -1,30 +1,31 @@
 /***********************************************************************************************************************
- *  OpenStudio(R), Copyright (c) 2008-2018, Alliance for Sustainable Energy, LLC. All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
- *  following conditions are met:
- *
- *  (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following
- *  disclaimer.
- *
- *  (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
- *  following disclaimer in the documentation and/or other materials provided with the distribution.
- *
- *  (3) Neither the name of the copyright holder nor the names of any contributors may be used to endorse or promote
- *  products derived from this software without specific prior written permission from the respective party.
- *
- *  (4) Other than as required in clauses (1) and (2), distributions in any form of modifications or other derivative
- *  works may not use the "OpenStudio" trademark, "OS", "os", or any other confusingly similar designation without
- *  specific prior written permission from Alliance for Sustainable Energy, LLC.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- *  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER, THE UNITED STATES GOVERNMENT, OR ANY CONTRIBUTORS BE LIABLE FOR
- *  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- *  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- **********************************************************************************************************************/
+*  OpenStudio(R), Copyright (c) 2008-2021, Alliance for Sustainable Energy, LLC, and other contributors. All rights reserved.
+*
+*  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+*  following conditions are met:
+*
+*  (1) Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+*  disclaimer.
+*
+*  (2) Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+*  disclaimer in the documentation and/or other materials provided with the distribution.
+*
+*  (3) Neither the name of the copyright holder nor the names of any contributors may be used to endorse or promote products
+*  derived from this software without specific prior written permission from the respective party.
+*
+*  (4) Other than as required in clauses (1) and (2), distributions in any form of modifications or other derivative works
+*  may not use the "OpenStudio" trademark, "OS", "os", or any other confusingly similar designation without specific prior
+*  written permission from Alliance for Sustainable Energy, LLC.
+*
+*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER(S) AND ANY CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+*  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+*  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER(S), ANY CONTRIBUTORS, THE UNITED STATES GOVERNMENT, OR THE UNITED
+*  STATES DEPARTMENT OF ENERGY, NOR ANY OF THEIR EMPLOYEES, BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+*  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+*  USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+*  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+*  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***********************************************************************************************************************/
 
 #ifndef UTILITIES_DATA_VECTOR_HPP
 #define UTILITIES_DATA_VECTOR_HPP
@@ -75,16 +76,27 @@ UTILITIES_API bool operator!=(const Vector& lhs, const Vector& rhs);
 // http://o2scl.sourceforge.net/o2scl/html/index.html#intp_section
 
 /** Enum to specify the interpolation method. */
-enum InterpMethod{LinearInterp, NearestInterp, HoldLastInterp, HoldNextInterp};
+enum InterpMethod
+{
+  LinearInterp,
+  NearestInterp,
+  HoldLastInterp,
+  HoldNextInterp
+};
 
 /** Enum to specify the extrapolation method. */
-enum ExtrapMethod{NoneExtrap, NearestExtrap};
+enum ExtrapMethod
+{
+  NoneExtrap,
+  NearestExtrap
+};
 
 /** Data structure for holding interpolation information. */
-struct UTILITIES_API InterpInfo{
-  bool extrapolated; // was point out of range
-  unsigned ia, ib; // indices of two nearest points
-  double wa, wb; // weights of two nearest points
+struct UTILITIES_API InterpInfo
+{
+  bool extrapolated;  // was point out of range
+  unsigned ia, ib;    // indices of two nearest points
+  double wa, wb;      // weights of two nearest points
 };
 
 /** Linear interpolation of the function y = f(x) at point xi. Assumes that x is strictly
@@ -93,14 +105,12 @@ UTILITIES_API InterpInfo interpInfo(const Vector& x, double xi);
 
 /** Linear interpolation of the function y = f(x) at point xi. Assumes that x is strictly
  *  increasing */
-UTILITIES_API double interp(const Vector& x, const Vector& y, double xi,
-                            InterpMethod interpMethod = LinearInterp,
+UTILITIES_API double interp(const Vector& x, const Vector& y, double xi, InterpMethod interpMethod = LinearInterp,
                             ExtrapMethod extrapMethod = NoneExtrap);
 
 /** Linear interpolation of the function y = f(x) at points xi. Assumes that x is strictly
  *  increasing. */
-UTILITIES_API Vector interp(const Vector& x, const Vector& y, const Vector& xi,
-                            InterpMethod interpMethod = LinearInterp,
+UTILITIES_API Vector interp(const Vector& x, const Vector& y, const Vector& xi, InterpMethod interpMethod = LinearInterp,
                             ExtrapMethod extrapMethod = NoneExtrap);
 
 //@}
@@ -152,30 +162,28 @@ UTILITIES_API double variance(const Vector& vector);
 UTILITIES_API double stdDev(const Vector& vector);
 
 /** Returns std::function pointer to sum(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> sumVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> sumVectorFunctor();
 
 /** Returns std::function pointer to maximum(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> maximumVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> maximumVectorFunctor();
 
 /** Returns std::function pointer to minimum(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> minimumVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> minimumVectorFunctor();
 
 /** Returns std::function pointer to mean(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> meanVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> meanVectorFunctor();
 
 /** Returns std::function pointer to variance(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> varianceVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> varianceVectorFunctor();
 
 /** Returns std::function pointer to stdDev(const Vector&). */
-UTILITIES_API std::function<double (const Vector&)> stdDevVectorFunctor();
+UTILITIES_API std::function<double(const Vector&)> stdDevVectorFunctor();
 
 /** Evaluates functor(vector). For use in SWIG bindings. */
-UTILITIES_API double evaluateDoubleFromVectorFunctor(
-    const std::function<double (const Vector&)>& functor,
-    const Vector& vector);
+UTILITIES_API double evaluateDoubleFromVectorFunctor(const std::function<double(const Vector&)>& functor, const Vector& vector);
 
 //@}
 
-} // openstudio
+}  // namespace openstudio
 
-#endif //UTILITIES_DATA_VECTOR_HPP
+#endif  //UTILITIES_DATA_VECTOR_HPP

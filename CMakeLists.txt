@@ -55,6 +55,11 @@ set(test_lib_src
   src/utilities/geometry/Point3d.cpp
   #src/utilities/geometry/PointLatLon.hpp
   #src/utilities/geometry/PointLatLon.cpp
+  src/utilities/geometry/Polygon3d.hpp
+  src/utilities/geometry/Polygon3d.cpp
+  src/utilities/geometry/RoofGeometry.hpp
+  src/utilities/geometry/RoofGeometry.cpp
+  src/utilities/geometry/RoofGeometry_Details.hpp
   src/utilities/geometry/ThreeJS.hpp
   src/utilities/geometry/ThreeJS.cpp
   src/utilities/geometry/Transformation.hpp

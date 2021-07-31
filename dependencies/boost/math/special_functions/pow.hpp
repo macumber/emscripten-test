@@ -13,6 +13,7 @@
 #define BOOST_MATH_POW_HPP
 
 
+#include <boost/math/special_functions/math_fwd.hpp>
 #include <boost/math/policies/policy.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/tools/promotion.hpp>
@@ -22,6 +23,10 @@
 namespace boost {
 namespace math {
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4702) // Unreachable code, only triggered in release mode and /W4
+#endif
 
 namespace detail {
 
@@ -109,8 +114,8 @@ template <int N>
 struct select_power_if_positive
 {
     typedef typename mpl::greater_equal<
-                         mpl::int_<N>,
-                         mpl::int_<0>
+                         boost::integral_constant<int, N>,
+                         boost::integral_constant<int, 0>
                      >::type is_positive;
 
     typedef power_if_positive<N, is_positive::value> type;
@@ -132,6 +137,9 @@ template <int N, typename T>
 inline typename tools::promote_args<T>::type pow(T base)
 { return pow<N>(base, policies::policy<>()); }
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 }  // namespace math
 }  // namespace boost

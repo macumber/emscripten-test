@@ -1,4 +1,4 @@
-/* Copyright 2003-2013 Joaquin M Lopez Munoz.
+/* Copyright 2003-2020 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -9,16 +9,18 @@
 #ifndef BOOST_MULTI_INDEX_DETAIL_INDEX_BASE_HPP
 #define BOOST_MULTI_INDEX_DETAIL_INDEX_BASE_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 
 #include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
-#include <boost/detail/allocator_utilities.hpp>
+#include <boost/core/addressof.hpp>
+#include <boost/detail/no_exceptions_support.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/move/core.hpp>
-#include <boost/move/utility.hpp>
+#include <boost/move/utility_core.hpp>
 #include <boost/mpl/vector.hpp>
+#include <boost/multi_index/detail/allocator_traits.hpp>
 #include <boost/multi_index/detail/copy_map.hpp>
 #include <boost/multi_index/detail/do_not_copy_elements_tag.hpp>
 #include <boost/multi_index/detail/node_type.hpp>
@@ -60,10 +62,9 @@ protected:
   typedef multi_index_container<
     Value,IndexSpecifierList,Allocator>       final_type;
   typedef tuples::null_type                   ctor_args_list;
-  typedef typename 
-    boost::detail::allocator::rebind_to<
-      Allocator,
-      typename Allocator::value_type>::type   final_allocator_type;
+  typedef typename rebind_alloc_for<
+    Allocator,typename Allocator::value_type
+  >::type                                     final_allocator_type;
   typedef mpl::vector0<>                      index_type_list;
   typedef mpl::vector0<>                      iterator_type_list;
   typedef mpl::vector0<>                      const_iterator_type_list;
@@ -83,6 +84,8 @@ protected:
 
 private:
   typedef Value                               value_type;
+  typedef allocator_traits<Allocator>         alloc_traits;
+  typedef typename alloc_traits::size_type    size_type;
 
 protected:
   explicit index_base(const ctor_args_list&,const Allocator&){}
@@ -96,60 +99,74 @@ protected:
     const index_base<Value,IndexSpecifierList,Allocator>&,const copy_map_type&)
   {}
 
-  node_type* insert_(const value_type& v,node_type* x,lvalue_tag)
+  final_node_type* insert_(const value_type& v,final_node_type*& x,lvalue_tag)
   {
-    boost::detail::allocator::construct(&x->value(),v);
+    x=final().allocate_node();
+    BOOST_TRY{
+      final().construct_value(x,v);
+    }
+    BOOST_CATCH(...){
+      final().deallocate_node(x);
+      BOOST_RETHROW;
+    }
+    BOOST_CATCH_END
     return x;
   }
 
-  node_type* insert_(const value_type& v,node_type* x,rvalue_tag)
+  final_node_type* insert_(const value_type& v,final_node_type*& x,rvalue_tag)
   {
-    /* This shoud have used a modified, T&&-compatible version of
-     * boost::detail::allocator::construct, but 
-     * <boost/detail/allocator_utilities.hpp> is too old and venerable to mess
-     * with; besides, it is a general internal utility and the imperfect
-     * perfect forwarding emulation of Boost.Move might break other libs.
-     */
-
-    new (&x->value()) value_type(boost::move(const_cast<value_type&>(v)));
+    x=final().allocate_node();
+    BOOST_TRY{
+      final().construct_value(x,boost::move(const_cast<value_type&>(v)));
+    }
+    BOOST_CATCH(...){
+      final().deallocate_node(x);
+      BOOST_RETHROW;
+    }
+    BOOST_CATCH_END
     return x;
   }
 
-  node_type* insert_(const value_type&,node_type* x,emplaced_tag)
+  final_node_type* insert_(const value_type&,final_node_type*& x,emplaced_tag)
   {
     return x;
   }
 
-  node_type* insert_(const value_type& v,node_type*,node_type* x,lvalue_tag)
+  final_node_type* insert_(
+    const value_type& v,node_type*,final_node_type*& x,lvalue_tag)
   {
-    boost::detail::allocator::construct(&x->value(),v);
-    return x;
+    return insert_(v,x,lvalue_tag());
   }
 
-  node_type* insert_(const value_type& v,node_type*,node_type* x,rvalue_tag)
+  final_node_type* insert_(
+    const value_type& v,node_type*,final_node_type*& x,rvalue_tag)
   {
-    new (&x->value()) value_type(boost::move(const_cast<value_type&>(v)));
-    return x;
+    return insert_(v,x,rvalue_tag());
   }
 
-  node_type* insert_(const value_type&,node_type*,node_type* x,emplaced_tag)
+  final_node_type* insert_(
+    const value_type&,node_type*,final_node_type*& x,emplaced_tag)
   {
     return x;
   }
 
   void erase_(node_type* x)
   {
-    boost::detail::allocator::destroy(&x->value());
+    final().destroy_value(static_cast<final_node_type*>(x));
   }
 
   void delete_node_(node_type* x)
   {
-    boost::detail::allocator::destroy(&x->value());
+    final().destroy_value(static_cast<final_node_type*>(x));
   }
 
   void clear_(){}
 
-  void swap_(index_base<Value,IndexSpecifierList,Allocator>&){}
+  template<typename BoolConstant>
+  void swap_(
+    index_base<Value,IndexSpecifierList,Allocator>&,
+    BoolConstant /* swap_allocators */)
+  {}
 
   void swap_elements_(index_base<Value,IndexSpecifierList,Allocator>&){}
 
@@ -168,6 +185,8 @@ protected:
   bool modify_(node_type*){return true;}
 
   bool modify_rollback_(node_type*){return true;}
+
+  bool check_rollback_(node_type*)const{return true;}
 
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
   /* serialization */
@@ -192,14 +211,17 @@ protected:
 
   final_node_type* final_header()const{return final().header();}
 
-  bool        final_empty_()const{return final().empty_();}
-  std::size_t final_size_()const{return final().size_();}
-  std::size_t final_max_size_()const{return final().max_size_();}
+  bool      final_empty_()const{return final().empty_();}
+  size_type final_size_()const{return final().size_();}
+  size_type final_max_size_()const{return final().max_size_();}
 
   std::pair<final_node_type*,bool> final_insert_(const value_type& x)
     {return final().insert_(x);}
   std::pair<final_node_type*,bool> final_insert_rv_(const value_type& x)
     {return final().insert_rv_(x);}
+  template<typename T>
+  std::pair<final_node_type*,bool> final_insert_ref_(const T& t)
+    {return final().insert_ref_(t);}
   template<typename T>
   std::pair<final_node_type*,bool> final_insert_ref_(T& t)
     {return final().insert_ref_(t);}
@@ -217,6 +239,10 @@ protected:
   std::pair<final_node_type*,bool> final_insert_rv_(
     const value_type& x,final_node_type* position)
     {return final().insert_rv_(x,position);}
+  template<typename T>
+  std::pair<final_node_type*,bool> final_insert_ref_(
+    const T& t,final_node_type* position)
+    {return final().insert_ref_(t,position);}
   template<typename T>
   std::pair<final_node_type*,bool> final_insert_ref_(
     T& t,final_node_type* position)
