@@ -28,11 +28,11 @@
 ***********************************************************************************************************************/
 
 #include "Compare.hpp"
-#include "../idf/WorkspaceObject.hpp"
-#include "../bcl/BCLComponent.hpp"
+//#include "../idf/WorkspaceObject.hpp"
+//#include "../bcl/BCLComponent.hpp"
 #include "Assert.hpp"
-#include <OpenStudio.hxx>
 
+#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
 namespace openstudio {
@@ -109,14 +109,14 @@ bool VersionString::parseVersionString(const std::string& version) {
 
   return true;
 }
-
+/*
 VersionString::VersionString() : m_str(openStudioLongVersion()) {
   if (!parseVersionString(m_str)) {
     // This should never happen, there's a specific test in Compare_GTest.cpp for this
     OS_ASSERT(false);
   }
 }
-
+*/
 VersionString::VersionString(const std::string& version) : m_str(version) {
   if (!parseVersionString(m_str)) {
     LOG_FREE_AND_THROW("openstudio.utilities.VersionString", "Could not parse '" << version << "' as a version string.");
@@ -315,7 +315,7 @@ std::ostream& operator<<(std::ostream& os, const VersionString& version) {
   os << version.str();
   return os;
 }
-
+/*
 bool WorkspaceObjectNameLess::operator()(const WorkspaceObject& a, const WorkspaceObject& b) const {
   std::string aname;
   boost::optional<std::string> oaname = a.name();
@@ -371,5 +371,5 @@ bool BCLComponentNameGreater::operator()(const BCLComponent& a, const BCLCompone
   }
   return istringLess(bname, aname);
 }
-
+*/
 }  // namespace openstudio

@@ -31,11 +31,11 @@
 
 #include "../core/Assert.hpp"
 #include "../core/Compare.hpp"
-#include "../core/Path.hpp"
+//#include "../core/Path.hpp"
 #include "../core/Json.hpp"
 #include "../core/UUID.hpp"
 
-#include <json/json.h>
+#include <jsoncpp/json.h>
 
 #include <iostream>
 #include <string>
@@ -276,16 +276,16 @@ ThreeScene::ThreeScene(const std::string& json_str)
 
   if (!parsingSuccessful) {
 
-    // see if this is a path
-    openstudio::path p = toPath(json_str);
-    if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)) {
-      // open file
-      std::ifstream ifs(openstudio::toSystemFilename(p));
-      root.clear();
-      formattedErrors.clear();
-      parsingSuccessful = Json::parseFromStream(rbuilder, ifs, &root, &formattedErrors);
-    }
-
+      /*
+      // see if this is a path
+      openstudio::path p = toPath(s);
+      if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)){
+        // open file
+        std::ifstream ifs(openstudio::toString(p));
+        root.clear();
+        parsingSuccessful = reader.parse(ifs, root);
+      }
+      */
     if (!parsingSuccessful) {
       LOG_AND_THROW("ThreeJS JSON cannot be processed, " << formattedErrors);
     }

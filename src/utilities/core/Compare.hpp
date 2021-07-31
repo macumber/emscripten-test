@@ -183,7 +183,7 @@ class UTILITIES_API VersionString
 UTILITIES_API std::ostream& operator<<(std::ostream& os, const VersionString& version);
 
 typedef boost::optional<VersionString> OptionalVersionString;
-
+/*
 // sorts WorkspaceObjects by name
 struct UTILITIES_API WorkspaceObjectNameLess
 {
@@ -207,7 +207,7 @@ struct UTILITIES_API BCLComponentNameGreater
 {
   bool operator()(const BCLComponent& a, const BCLComponent& b) const;
 };
-
+*/
 /** Test equality between objects in two vectors of pointers */
 template <class T>
 bool checkPtrVecEqual(const std::vector<std::shared_ptr<T>>& a, const std::vector<std::shared_ptr<T>>& b) {

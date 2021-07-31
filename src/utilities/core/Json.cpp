@@ -30,25 +30,27 @@
 #include "Json.hpp"
 
 #include "Assert.hpp"
-#include "PathHelpers.hpp"
+//#include "Compare.hpp"
 #include "Logger.hpp"
-#include "FilesystemHelpers.hpp"
+//#include "PathHelpers.hpp"
+//#include "FilesystemHelpers.hpp"
+//#include "String.hpp"
 
-#include <OpenStudio.hxx>
+#include <jsoncpp/json.h>
 
 namespace openstudio {
 
 // assert key is present
 void assertKey(const Json::Value& value, const std::string& key) {
   if (!checkKey(value, key)) {
-    throw openstudio::Exception(std::string("Cannot find key '" + key + "'"));
+    throw std::runtime_error(std::string("Cannot find key '" + key + "'"));
   }
 }
 
 // assert type is correct if key is present
 void assertType(const Json::Value& value, const std::string& key, const Json::ValueType& valueType) {
   if (!checkType(value, key, valueType)) {
-    throw openstudio::Exception(std::string("Key '" + key + "' is of wrong type"));
+    throw std::runtime_error(std::string("Key '" + key + "' is of wrong type"));
   }
 }
 

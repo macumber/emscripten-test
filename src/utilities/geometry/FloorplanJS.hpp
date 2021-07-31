@@ -39,7 +39,7 @@
 #include "../core/Logger.hpp"
 #include "../core/UUID.hpp"
 
-#include <json/json.h>
+#include <jsoncpp/json.h>
 
 #include <vector>
 #include <set>

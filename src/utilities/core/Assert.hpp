@@ -39,35 +39,29 @@
 #include "Logger.hpp"
 
 #include <sstream>
+#include <iostream>
 
 #define OS_ASSERT(expr) BOOST_ASSERT(expr)
 
 #ifdef NDEBUG
-//#define BOOST_DISABLE_ASSERTS
-#  define BOOST_ENABLE_ASSERT_HANDLER
+  //#define BOOST_DISABLE_ASSERTS
+  #define BOOST_ENABLE_ASSERT_HANDLER
 #else
-#  define BOOST_ENABLE_ASSERT_HANDLER
+  #define BOOST_ENABLE_ASSERT_HANDLER
 #endif
 
 // include after definitions
 #include <boost/assert.hpp>
 
 namespace boost {
-inline void assertion_failed(char const* expr, char const* function, char const* file, long line) {
-  std::stringstream ss;
-  ss << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << ".";
-  openstudio::Logger::instance().standardErrLogger().enable();
-  LOG_FREE(Fatal, "BOOST_ASSERT", ss.str());
-  assert(false);
-}
+  inline void assertion_failed(char const * expr, char const * function, char const * file, long line) {
+    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl;
+  }
 
-inline void assertion_failed_msg(char const* expr, char const* msg, char const* function, char const* file, long line) {
-  std::stringstream ss;
-  ss << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << '\n' << msg;
-  openstudio::Logger::instance().standardErrLogger().enable();
-  LOG_FREE(Fatal, "BOOST_ASSERT", ss.str());
-  assert(false);
+  inline void assertion_failed_msg(char const * expr, char const * msg, char const * function, char const * file, long line)
+  {
+    std::cout << "Assertion " << expr << " failed on line " << line << " of " << function << " in file " << file << "." << std::endl << msg << std::endl;
+  }
 }
-}  // namespace boost
 
 #endif  // UTILITIES_CORE_ASSERT_HPP

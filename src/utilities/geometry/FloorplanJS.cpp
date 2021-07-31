@@ -31,13 +31,20 @@
 #include "ThreeJS.hpp"
 #include "Vector3d.hpp"
 #include "Geometry.hpp"
+#include "Plane.hpp"
 #include "Intersection.hpp"
 
 #include "../core/Assert.hpp"
+#include "../core/Compare.hpp"
 //#include "../core/Path.hpp"
 #include "../core/Json.hpp"
 
-namespace openstudio {
+#include <jsoncpp/json.h>
+
+#include <iostream>
+#include <string>
+
+namespace openstudio{
 
 static constexpr auto BELOWFLOORPLENUMPOSTFIX(" Floor Plenum");
 static constexpr auto ABOVECEILINGPLENUMPOSTFIX(" Plenum");
@@ -200,16 +207,16 @@ FloorplanJS::FloorplanJS(const std::string& s) : m_lastId(0) {
 
   if (!parsingSuccessful) {
 
-    // see if this is a path
-    openstudio::path p = toPath(s);
-    if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)) {
-      // open file
-      std::ifstream ifs(openstudio::toSystemFilename(p));
-      m_value.clear();
-      formattedErrors.clear();
-      parsingSuccessful = Json::parseFromStream(rbuilder, ifs, &m_value, &formattedErrors);
-    }
-
+      /*
+      // see if this is a path
+      openstudio::path p = toPath(s);
+      if (boost::filesystem::exists(p) && boost::filesystem::is_regular_file(p)){
+        // open file
+        std::ifstream ifs(openstudio::toString(p));
+        m_value.clear();
+        parsingSuccessful = reader.parse(ifs, m_value);
+      }
+      */
     if (!parsingSuccessful) {
       LOG_AND_THROW("ThreeJS JSON cannot be processed, " << formattedErrors);
     }
@@ -919,20 +926,19 @@ void FloorplanJS::makeGeometries(const Json::Value& story, const Json::Value& sp
       Transformation t = Transformation::alignFace(wallVertices);
       //Transformation r = t.rotationMatrix();
       Transformation tInv = t.inverse();
-      faceVertices = reverse(tInv * wallVertices);
-
+      wallVertices = reverse(tInv * wallVertices);
       // get vertices of all sub surfaces
-      Point3dVectorVector faceSubVertices;
+      Point3dVectorVector wallSubVertices;
       for (const auto& finalWindowVertices : allFinalWindowVertices) {
-        faceSubVertices.push_back(reverse(tInv * finalWindowVertices));
+        wallSubVertices.push_back(reverse(tInv * finalWindowVertices));
       }
       for (const auto& finalDoorVertices : allFinalDoorVertices) {
-        faceSubVertices.push_back(reverse(tInv * finalDoorVertices));
+        wallSubVertices.push_back(reverse(tInv * finalDoorVertices));
       }
 
-      Point3dVectorVector finalFaceVertices = computeTriangulation(faceVertices, faceSubVertices, tol);
-      for (const auto& finalFaceVerts : finalFaceVertices) {
-        Point3dVector finalVerts = t * finalFaceVerts;
+      Point3dVectorVector finalWallVertices = computeTriangulation(wallVertices, wallSubVertices, tol);
+      for (const auto& finalWallVerts : finalWallVertices) {
+        Point3dVector finalVerts = t * finalWallVerts;
         allFinalWallVertices.push_back(reverse(finalVerts));
       }
     }
