@@ -33,6 +33,7 @@
 
 #include <sstream>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 //#include <boost/thread/tss.hpp>

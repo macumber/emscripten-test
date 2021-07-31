@@ -6,14 +6,14 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland 
- * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
+ * $Date$
  */
 
 #include <exception>
 #include <stdexcept>
 #include <boost/config.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/mpl/if.hpp>
+#include <boost/type_traits/conditional.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
 namespace boost {
@@ -39,25 +39,29 @@ namespace CV {
    *
    */
   template<class value_policies>
-  class constrained_value {
+  class BOOST_SYMBOL_VISIBLE constrained_value {
   public:
     typedef typename value_policies::value_type value_type;
     //    typedef except_type exception_type;
-    constrained_value(value_type value) : value_((min)())
+    BOOST_CXX14_CONSTEXPR constrained_value(value_type value) : value_((min)())
     {
       assign(value);
     }
-    constrained_value& operator=(value_type v)
+    BOOST_CXX14_CONSTEXPR constrained_value& operator=(value_type v)
     {
       assign(v); 
       return *this;
     }
     //! Return the max allowed value (traits method)
-    static value_type max BOOST_PREVENT_MACRO_SUBSTITUTION () {return (value_policies::max)();}
+    static BOOST_CONSTEXPR value_type
+    max BOOST_PREVENT_MACRO_SUBSTITUTION () {return (value_policies::max)();}
+
     //! Return the min allowed value (traits method)
-    static value_type min BOOST_PREVENT_MACRO_SUBSTITUTION () {return (value_policies::min)();}
+    static BOOST_CONSTEXPR value_type
+    min BOOST_PREVENT_MACRO_SUBSTITUTION () {return (value_policies::min)();}
+
     //! Coerce into the representation type
-    operator value_type() const {return value_;}
+    BOOST_CXX14_CONSTEXPR operator value_type() const {return value_;}
   protected:
     value_type value_;
   private:
@@ -80,9 +84,9 @@ namespace CV {
   //! Template to shortcut the constrained_value policy creation process
   template<typename rep_type, rep_type min_value, 
            rep_type max_value, class exception_type>
-  class simple_exception_policy
+  class BOOST_SYMBOL_VISIBLE simple_exception_policy
   {
-    struct exception_wrapper : public exception_type
+    struct BOOST_SYMBOL_VISIBLE exception_wrapper : public exception_type
     {
       // In order to support throw_exception mechanism in the BOOST_NO_EXCEPTIONS mode,
       // we'll have to provide a way to acquire std::exception from the exception being thrown.
@@ -95,16 +99,20 @@ namespace CV {
       }
     };
 
-    typedef typename mpl::if_<
-      is_base_of< std::exception, exception_type >,
+    typedef typename conditional<
+      is_base_of< std::exception, exception_type >::value,
       exception_type,
       exception_wrapper
     >::type actual_exception_type;
 
   public:
     typedef rep_type value_type;
-    static rep_type min BOOST_PREVENT_MACRO_SUBSTITUTION () { return min_value; }
-    static rep_type max BOOST_PREVENT_MACRO_SUBSTITUTION () { return max_value; }
+    static BOOST_CONSTEXPR rep_type
+    min BOOST_PREVENT_MACRO_SUBSTITUTION () { return min_value; }
+
+    static BOOST_CONSTEXPR rep_type
+    max BOOST_PREVENT_MACRO_SUBSTITUTION () { return max_value; }
+
     static void on_error(rep_type, rep_type, violation_enum)
     {
       boost::throw_exception(actual_exception_type());

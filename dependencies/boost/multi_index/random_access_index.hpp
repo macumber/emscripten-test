@@ -1,4 +1,4 @@
-/* Copyright 2003-2013 Joaquin M Lopez Munoz.
+/* Copyright 2003-2020 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -9,30 +9,32 @@
 #ifndef BOOST_MULTI_INDEX_RANDOM_ACCESS_INDEX_HPP
 #define BOOST_MULTI_INDEX_RANDOM_ACCESS_INDEX_HPP
 
-#if defined(_MSC_VER)&&(_MSC_VER>=1200)
+#if defined(_MSC_VER)
 #pragma once
 #endif
 
 #include <boost/config.hpp> /* keep it first to prevent nasty warns in MSVC */
 #include <algorithm>
+#include <boost/bind/bind.hpp>
 #include <boost/call_traits.hpp>
+#include <boost/core/addressof.hpp>
 #include <boost/detail/no_exceptions_support.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/foreach_fwd.hpp>
 #include <boost/iterator/reverse_iterator.hpp>
 #include <boost/move/core.hpp>
-#include <boost/move/utility.hpp>
+#include <boost/move/utility_core.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/not.hpp>
 #include <boost/mpl/push_front.hpp>
 #include <boost/multi_index/detail/access_specifier.hpp>
+#include <boost/multi_index/detail/allocator_traits.hpp>
 #include <boost/multi_index/detail/do_not_copy_elements_tag.hpp>
 #include <boost/multi_index/detail/index_node_base.hpp>
 #include <boost/multi_index/detail/rnd_node_iterator.hpp>
 #include <boost/multi_index/detail/rnd_index_node.hpp>
 #include <boost/multi_index/detail/rnd_index_ops.hpp>
 #include <boost/multi_index/detail/rnd_index_ptr_array.hpp>
-#include <boost/multi_index/detail/safe_ctr_proxy.hpp>
 #include <boost/multi_index/detail/safe_mode.hpp>
 #include <boost/multi_index/detail/scope_guard.hpp>
 #include <boost/multi_index/detail/vartempl_support.hpp>
@@ -40,7 +42,6 @@
 #include <boost/throw_exception.hpp> 
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/is_integral.hpp>
-#include <cstddef>
 #include <functional>
 #include <stdexcept> 
 #include <utility>
@@ -50,7 +51,6 @@
 #endif
 
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
-#include <boost/bind.hpp>
 #include <boost/multi_index/detail/rnd_index_loader.hpp>
 #endif
 
@@ -81,15 +81,8 @@ class random_access_index:
   BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS SuperMeta::type
 
 #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
-#if BOOST_WORKAROUND(BOOST_MSVC,<1300)
-  ,public safe_ctr_proxy_impl<
-    rnd_node_iterator<
-      random_access_index_node<typename SuperMeta::type::node_type> >,
-    random_access_index<SuperMeta,TagList> >
-#else
   ,public safe_mode::safe_container<
     random_access_index<SuperMeta,TagList> >
-#endif
 #endif
 
 { 
@@ -103,53 +96,50 @@ class random_access_index:
 #pragma parse_mfunc_templ off
 #endif
 
-  typedef typename SuperMeta::type                 super;
+  typedef typename SuperMeta::type               super;
 
 protected:
   typedef random_access_index_node<
-    typename super::node_type>                     node_type;
+    typename super::node_type>                   node_type;
 
 private:
-  typedef typename node_type::impl_type            node_impl_type;
+  typedef typename node_type::impl_type          node_impl_type;
   typedef random_access_index_ptr_array<
-    typename super::final_allocator_type>          ptr_array;
-  typedef typename ptr_array::pointer              node_impl_ptr_pointer;
+    typename super::final_allocator_type>        ptr_array;
+  typedef typename ptr_array::pointer            node_impl_ptr_pointer;
 
 public:
   /* types */
 
-  typedef typename node_type::value_type           value_type;
-  typedef tuples::null_type                        ctor_args;
-  typedef typename super::final_allocator_type     allocator_type;
-  typedef typename allocator_type::reference       reference;
-  typedef typename allocator_type::const_reference const_reference;
+  typedef typename node_type::value_type         value_type;
+  typedef tuples::null_type                      ctor_args;
+  typedef typename super::final_allocator_type   allocator_type;
+  typedef value_type&                            reference;
+  typedef const value_type&                      const_reference;
 
 #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
-#if BOOST_WORKAROUND(BOOST_MSVC,<1300)
   typedef safe_mode::safe_iterator<
     rnd_node_iterator<node_type>,
-    safe_ctr_proxy<
-      rnd_node_iterator<node_type> > >             iterator;
+    random_access_index>                         iterator;
 #else
-  typedef safe_mode::safe_iterator<
-    rnd_node_iterator<node_type>,
-    random_access_index>                           iterator;
-#endif
-#else
-  typedef rnd_node_iterator<node_type>             iterator;
+  typedef rnd_node_iterator<node_type>           iterator;
 #endif
 
-  typedef iterator                                 const_iterator;
+  typedef iterator                               const_iterator;
 
-  typedef std::size_t                              size_type;      
-  typedef std::ptrdiff_t                           difference_type;
-  typedef typename allocator_type::pointer         pointer;
-  typedef typename allocator_type::const_pointer   const_pointer;
+private:
+  typedef allocator_traits<allocator_type>       alloc_traits;
+
+public:
+  typedef typename alloc_traits::pointer         pointer;
+  typedef typename alloc_traits::const_pointer   const_pointer;
+  typedef typename alloc_traits::size_type       size_type;
+  typedef typename alloc_traits::difference_type difference_type;
   typedef typename
-    boost::reverse_iterator<iterator>              reverse_iterator;
+    boost::reverse_iterator<iterator>            reverse_iterator;
   typedef typename
-    boost::reverse_iterator<const_iterator>        const_reverse_iterator;
-  typedef TagList                                  tag_list;
+    boost::reverse_iterator<const_iterator>      const_reverse_iterator;
+  typedef TagList                                tag_list;
 
 protected:
   typedef typename super::final_node_type     final_node_type;
@@ -174,14 +164,8 @@ protected:
 
 private:
 #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
-#if BOOST_WORKAROUND(BOOST_MSVC,<1300)
-  typedef safe_ctr_proxy_impl<
-    rnd_node_iterator<node_type>,
-    random_access_index>                      safe_super;
-#else
   typedef safe_mode::safe_container<
     random_access_index>                      safe_super;
-#endif
 #endif
 
   typedef typename call_traits<
@@ -236,44 +220,54 @@ public:
     for(size_type i=0;i<n;++i)push_back(value);
   }
     
-  allocator_type get_allocator()const
+  allocator_type get_allocator()const BOOST_NOEXCEPT
   {
     return this->final().get_allocator();
   }
 
   /* iterators */
 
-  iterator               begin()
+  iterator begin()BOOST_NOEXCEPT
     {return make_iterator(node_type::from_impl(*ptrs.begin()));}
-  const_iterator         begin()const
+  const_iterator begin()const BOOST_NOEXCEPT
     {return make_iterator(node_type::from_impl(*ptrs.begin()));}
-  iterator               end(){return make_iterator(header());}
-  const_iterator         end()const{return make_iterator(header());}
-  reverse_iterator       rbegin(){return make_reverse_iterator(end());}
-  const_reverse_iterator rbegin()const{return make_reverse_iterator(end());}
-  reverse_iterator       rend(){return make_reverse_iterator(begin());}
-  const_reverse_iterator rend()const{return make_reverse_iterator(begin());}
-  const_iterator         cbegin()const{return begin();}
-  const_iterator         cend()const{return end();}
-  const_reverse_iterator crbegin()const{return rbegin();}
-  const_reverse_iterator crend()const{return rend();}
+  iterator
+    end()BOOST_NOEXCEPT{return make_iterator(header());}
+  const_iterator
+    end()const BOOST_NOEXCEPT{return make_iterator(header());}
+  reverse_iterator
+    rbegin()BOOST_NOEXCEPT{return boost::make_reverse_iterator(end());}
+  const_reverse_iterator
+    rbegin()const BOOST_NOEXCEPT{return boost::make_reverse_iterator(end());}
+  reverse_iterator
+    rend()BOOST_NOEXCEPT{return boost::make_reverse_iterator(begin());}
+  const_reverse_iterator
+    rend()const BOOST_NOEXCEPT{return boost::make_reverse_iterator(begin());}
+  const_iterator
+    cbegin()const BOOST_NOEXCEPT{return begin();}
+  const_iterator
+    cend()const BOOST_NOEXCEPT{return end();}
+  const_reverse_iterator
+    crbegin()const BOOST_NOEXCEPT{return rbegin();}
+  const_reverse_iterator
+    crend()const BOOST_NOEXCEPT{return rend();}
 
   iterator iterator_to(const value_type& x)
   {
-    return make_iterator(node_from_value<node_type>(&x));
+    return make_iterator(node_from_value<node_type>(boost::addressof(x)));
   }
 
   const_iterator iterator_to(const value_type& x)const
   {
-    return make_iterator(node_from_value<node_type>(&x));
+    return make_iterator(node_from_value<node_type>(boost::addressof(x)));
   }
 
   /* capacity */
 
-  bool      empty()const{return this->final_empty_();}
-  size_type size()const{return this->final_size_();}
-  size_type max_size()const{return this->final_max_size_();}
-  size_type capacity()const{return ptrs.capacity();}
+  bool      empty()const BOOST_NOEXCEPT{return this->final_empty_();}
+  size_type size()const BOOST_NOEXCEPT{return this->final_size_();}
+  size_type max_size()const BOOST_NOEXCEPT{return this->final_max_size_();}
+  size_type capacity()const BOOST_NOEXCEPT{return ptrs.capacity();}
 
   void reserve(size_type n)
   {
@@ -419,7 +413,7 @@ public:
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(last,*this);
     BOOST_MULTI_INDEX_CHECK_VALID_RANGE(first,last);
     BOOST_MULTI_INDEX_RND_INDEX_CHECK_INVARIANT;
-    difference_type n=last-first;
+    difference_type n=static_cast<difference_type>(last-first);
     relocate(end(),first,last);
     while(n--)pop_back();
     return last;
@@ -467,7 +461,7 @@ public:
   }
 
   template<typename Modifier,typename Rollback>
-  bool modify(iterator position,Modifier mod,Rollback back)
+  bool modify(iterator position,Modifier mod,Rollback back_)
   {
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
@@ -484,7 +478,7 @@ public:
 #endif
 
     return this->final_modify_(
-      mod,back,static_cast<final_node_type*>(position.get_node()));
+      mod,back_,static_cast<final_node_type*>(position.get_node()));
   }
 
   void swap(random_access_index<SuperMeta,TagList>& x)
@@ -494,7 +488,7 @@ public:
     this->final_swap_(x.final());
   }
 
-  void clear()
+  void clear()BOOST_NOEXCEPT
   {
     BOOST_MULTI_INDEX_RND_INDEX_CHECK_INVARIANT;
     this->final_clear_();
@@ -594,7 +588,8 @@ public:
     difference_type n=
       end()-make_iterator(
         random_access_index_remove<node_type>(
-          ptrs,std::bind2nd(std::equal_to<value_type>(),value)));
+          ptrs,
+          ::boost::bind(std::equal_to<value_type>(),::boost::arg<1>(),value)));
     while(n--)pop_back();
   }
 
@@ -665,7 +660,7 @@ public:
       get_allocator(),ptrs,comp);
   }
 
-  void reverse()
+  void reverse()BOOST_NOEXCEPT
   {
     BOOST_MULTI_INDEX_RND_INDEX_CHECK_INVARIANT;
     node_impl_type::reverse(ptrs.begin(),ptrs.end());
@@ -781,22 +776,22 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
   }
 
   template<typename Variant>
-  node_type* insert_(value_param_type v,node_type* x,Variant variant)
+  final_node_type* insert_(
+    value_param_type v,final_node_type*& x,Variant variant)
   {
     ptrs.room_for_one();
-    node_type* res=static_cast<node_type*>(super::insert_(v,x,variant));
-    if(res==x)ptrs.push_back(x->impl());
+    final_node_type* res=super::insert_(v,x,variant);
+    if(res==x)ptrs.push_back(static_cast<node_type*>(x)->impl());
     return res;
   }
 
   template<typename Variant>
-  node_type* insert_(
-    value_param_type v,node_type* position,node_type* x,Variant variant)
+  final_node_type* insert_(
+    value_param_type v,node_type* position,final_node_type*& x,Variant variant)
   {
     ptrs.room_for_one();
-    node_type* res=
-      static_cast<node_type*>(super::insert_(v,position,x,variant));
-    if(res==x)ptrs.push_back(x->impl());
+    final_node_type* res=super::insert_(v,position,x,variant);
+    if(res==x)ptrs.push_back(static_cast<node_type*>(x)->impl());
     return res;
   }
 
@@ -828,15 +823,17 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 #endif
   }
 
-  void swap_(random_access_index<SuperMeta,TagList>& x)
+  template<typename BoolConstant>
+  void swap_(
+    random_access_index<SuperMeta,TagList>& x,BoolConstant swap_allocators)
   {
-    ptrs.swap(x.ptrs);
+    ptrs.swap(x.ptrs,swap_allocators);
 
 #if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
     safe_super::swap(x);
 #endif
 
-    super::swap_(x);
+    super::swap_(x,swap_allocators);
   }
 
   void swap_elements_(random_access_index<SuperMeta,TagList>& x)
@@ -887,6 +884,11 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     return super::modify_rollback_(x);
   }
 
+  bool check_rollback_(node_type* x)const
+  {
+    return super::check_rollback_(x);
+  }
+
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
   /* serialization */
 
@@ -906,7 +908,10 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
       typedef random_access_index_loader<node_type,allocator_type> loader;
 
       loader ld(get_allocator(),ptrs);
-      lm.load(::boost::bind(&loader::rearrange,&ld,_1,_2),ar,version);
+      lm.load(
+        ::boost::bind(
+          &loader::rearrange,&ld,::boost::arg<1>(),::boost::arg<2>()),
+        ar,version);
     } /* exit scope so that ld frees its resources */
     super::load_(ar,version,lm);
   }
@@ -1163,7 +1168,7 @@ struct random_access
 template<typename SuperMeta,typename TagList>
 inline boost::mpl::true_* boost_foreach_is_noncopyable(
   boost::multi_index::detail::random_access_index<SuperMeta,TagList>*&,
-  boost::foreach::tag)
+  boost_foreach_argument_dependent_lookup_hack)
 {
   return 0;
 }

@@ -11,7 +11,13 @@
 #pragma once
 #endif
 
-#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/phoenix/core/actor.hpp>
+#include <boost/phoenix/core/as_actor.hpp>
+#include <boost/phoenix/core/expression.hpp>
+#include <boost/phoenix/core/v2_eval.hpp>
+#include <boost/phoenix/core/value.hpp> // includes as_actor specialization
+#include <boost/proto/traits.hpp>
+#include <boost/proto/proto_fwd.hpp> // for transform placeholders
 
 namespace boost { namespace spirit { namespace lex
 {
@@ -82,7 +88,6 @@ namespace boost { namespace spirit { namespace lex
 }}}
 
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef BOOST_SPIRIT_USE_PHOENIX_V3
 
 BOOST_PHOENIX_DEFINE_EXPRESSION(
     (boost)(spirit)(lex)(value_setter)
@@ -245,7 +250,5 @@ namespace boost { namespace phoenix
         >
     {};
 }}
-
-#endif // BOOST_SPIRIT_USE_PHOENIX_V3
 
 #endif
